@@ -65,12 +65,12 @@ const geometry = new BoxGeometry(1, 1, 1);
 const material = new MeshNormalMaterial();
 const cube = new Mesh(geometry, material);
 
-scene.add(cube);
+//scene.add(cube);
 
 function loadData() {
   new GLTFLoader()
     .setPath('assets/models/')
-    .load('test.glb', gltfReader);
+    .load('brain_project.glb', gltfReader);
 }
 
 
