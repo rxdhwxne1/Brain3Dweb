@@ -1,37 +1,51 @@
 "use strict";
 
-import * as THREE from 'three';
+import {
+  PerspectiveCamera,
+  Scene,
+  WebGLRenderer,
+  AmbientLight,
+  Clock,
+  SphereGeometry,
+  MeshBasicMaterial,
+  Mesh,
+  Raycaster,
+  Vector2,
+  Color,
+  Vector3
+} from 'three';
+
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const scene = new THREE.Scene();
+const scene = new Scene();
 const aspect = window.innerWidth / window.innerHeight;
-const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+const camera = new PerspectiveCamera(75, aspect, 0.1, 1000);
 
-const light = new THREE.AmbientLight(0xffffff, 1.0); // soft white light
+const light = new AmbientLight(0xffffff, 1.0); // soft white light
 scene.add(light);
 
-const renderer = new THREE.WebGLRenderer();
+const renderer = new WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.listenToKeyEvents(window); // optional
 
-const clock = new THREE.Clock();
+const clock = new Clock();
 camera.position.z = 3;
 
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
+const raycaster = new Raycaster();
+const mouse = new Vector2();
 
 // Fonction pour ajouter des points à des positions spécifiques
 function addPoint(x, y, z, color) {
-  const geometry = new THREE.SphereGeometry(0.05, 32, 32); // Taille du point
-  const material = new THREE.MeshBasicMaterial({ color: color }); // Couleur du point
-  const point = new THREE.Mesh(geometry, material);
+  const geometry = new SphereGeometry(0.05, 32, 32);
+  const material = new MeshBasicMaterial({ color: color });
+  const point = new Mesh(geometry, material);
 
   point.position.set(x, y, z);
-  point.userData = { color: color }; // Stocker la couleur dans userData
+  point.userData.color = new Color(color); // Associe la couleur au userData
   scene.add(point);
 }
 
@@ -40,10 +54,10 @@ function selectElements(color) {
   const selectedMeshes = [];
 
   scene.traverse((child) => {
-    if (child.isMesh && child.material instanceof THREE.MeshBasicMaterial) {
-      if (child.material.color.equals(color)) {
+    if (child.isMesh && child.material instanceof MeshBasicMaterial) {
+      if (child.userData.color && child.userData.color.equals(new Color(color))) {
         selectedMeshes.push(child);
-        child.material.color.set(0x00ff00); // Changer la couleur en vert pour indiquer la sélection
+        child.material.color.set(0x00ff00); // Change la couleur en vert
       }
     }
   });
@@ -61,12 +75,15 @@ function gltfReader(gltf) {
   const brainModel = gltf.scene;
 
   if (brainModel != null) {
-    console.log("Model loaded:  " + brainModel);
+    console.log("Model loaded: " + brainModel);
     scene.add(brainModel);
 
-    // Ajouter des points à des endroits spécifiques du cerveau
-    const pointColor = 0x8b0000; // Exemple de couleur pour le point
-    addPoint(0, 0.75, -0.5, pointColor); // Exemple de point
+    const pointColor = 0xFFFFFF;
+    addPoint(0, .95, .5, pointColor); // lobe frontal
+    addPoint(0, .95, -.45, pointColor); // lobe pariétal
+    addPoint(.45, .5, .25, pointColor); // lobe temporal
+    addPoint(0, .5, -.63, pointColor); // lobe occipital
+    addPoint(0, .15, -.35, pointColor); // cervelet
   } else {
     console.log("Load FAILED.");
   }
@@ -74,35 +91,43 @@ function gltfReader(gltf) {
 
 loadData();
 
-// Gestionnaire de clics
 window.addEventListener('click', onMouseClick, false);
 
 function onMouseClick(event) {
-  // Convertir les coordonnées de la souris en coordonnées normalisées
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
-  // Mettre à jour le raycaster avec la caméra et les coordonnées de la souris
   raycaster.setFromCamera(mouse, camera);
 
-  // Calculer les objets intersectés
   const intersects = raycaster.intersectObjects(scene.children, true);
 
-  // Si quelque chose a été cliqué
   if (intersects.length > 0) {
-    // Prendre la couleur du premier point cliqué
-    const color = intersects[0].object.userData.color;
-
-    // Sélectionner tous les éléments de la même couleur
-    if (color) {
-      selectElements(new THREE.Color(color));
-    }
+    const pointPosition = intersects[0].point;
+    lookAtPoint(pointPosition);
   }
+}
+
+function lookAtPoint(point) {
+  const cameraDistance = .5; // Distance désirée par rapport au point
+
+  // Calculer la direction entre la caméra et le point sélectionné
+  const direction = new Vector3();
+  direction.subVectors(point, camera.position).normalize();
+
+  // Ajuster la position de la caméra pour qu'elle se rapproche du point sélectionné -> fonctionne pas encore bien
+  const newCameraPosition = new Vector3();
+  newCameraPosition.copy(point).add(direction.multiplyScalar(-cameraDistance));
+
+  // Déplacer la caméra progressivement vers la nouvelle position
+  camera.position.lerp(newCameraPosition, 0.1); // Interpolation pour un mouvement fluide -> fonctionne pas du tout
+
+  // Faire en sorte que la caméra regarde toujours le point sélectionné
+  camera.lookAt(point);
 }
 
 // Main loop
 const animation = () => {
-  requestAnimationFrame(animation);
+  renderer.setAnimationLoop(animation);
   renderer.render(scene, camera);
 };
 
