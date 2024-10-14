@@ -4,18 +4,19 @@
 // see https://developer.mozilla.org/en-US/docs/Glossary/Tree_shaking)
 
 import {
-    AmbientLight,
     ArrowHelper,
     BoxGeometry,
     Clock,
-    ConeGeometry, DirectionalLight, HemisphereLight,
+    ConeGeometry,
     Line,
     Mesh,
-    MeshNormalMaterial, NearestFilter,
-    PerspectiveCamera, PointLight,
+    MeshNormalMaterial,
+    PerspectiveCamera,
     Raycaster,
     RectAreaLight,
-    Scene, SRGBColorSpace, TextureLoader,
+    Scene,
+    SRGBColorSpace,
+    TextureLoader,
     Vector2,
     Vector3,
     WebGLRenderer
@@ -41,7 +42,6 @@ import {
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {extracted} from "./utils/Brain_part.js";
 // Example of hard link to official repo for data, if needed
 // const MODEL_PATH = 'https://raw.githubusercontent.com/mrdoob/js/r148/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb';
 
@@ -161,9 +161,8 @@ function onMouseMove(event) {
 //r})
 
 
-function getDominantColor(intersect, texture, sampleSize = 5) {
+function getColor(intersect, texture, sampleSize = 5) {
     // Créer un tableau pour stocker les couleurs échantillonnées
-    const colorCounts = {};
     const uv = intersect.uv;
 
     // Créer un canvas pour échantillonner la texture
@@ -173,39 +172,15 @@ function getDominantColor(intersect, texture, sampleSize = 5) {
     canvas.height = texture.image.height;
     context.drawImage(texture.image, 0, 0);
 
-    // Échantillonner les pixels autour de l'UV
-    for (let i = -sampleSize; i <= sampleSize; i++) {
-        for (let j = -sampleSize; j <= sampleSize; j++) {
-            const x = Math.floor((uv.x * canvas.width + i + canvas.width) % canvas.width);
-            const y = Math.floor((1 - uv.y) * canvas.height + j + canvas.height) % canvas.height; // Flipping Y-axis
+    // Échantillonner la texture autour de l'intersection
+    const x = Math.floor(uv.x * canvas.width);
+    const y = Math.floor((1 - uv.y) * canvas.height); // Inverser l'axe Y
+    const imageData = context.getImageData(x, y, sampleSize, sampleSize);
 
-            const imageData = context.getImageData(x, y, 1, 1);
-            const data = imageData.data;
-
-            // Récupérer la couleur
-            const colorKey = `rgb(${data[0]},${data[1]},${data[2]})`;
-
-            // Compter les occurrences de la couleur
-            if (colorCounts[colorKey]) {
-                colorCounts[colorKey]++;
-            } else {
-                colorCounts[colorKey] = 1;
-            }
-        }
-    }
-
-    // Trouver la couleur dominante
-    let dominantColor = null;
-    let maxCount = 0;
-
-    for (const color in colorCounts) {
-        if (colorCounts[color] > maxCount) {
-            maxCount = colorCounts[color];
-            dominantColor = color;
-        }
-    }
-
-    return dominantColor;
+    // get the pixel data
+    const data = imageData.data;
+    // get the color for this pixel
+    return `rgb(${data[0]}, ${data[1]}, ${data[2]})`;
 }
 
 const textureLoader = new TextureLoader();
@@ -234,7 +209,7 @@ function onDoubleClick(event) {
         const object = intersect.object;
 
         if (object.material.map) {
-            const dominantColor = getDominantColor(intersect, texture);
+            const dominantColor = getColor(intersect, texture);
             console.log(`Couleur dominante à l'intersection : ${dominantColor}`);
         } else {
             console.error('L\'objet n\'a pas de texture');
