@@ -21,6 +21,8 @@ import {
     Vector3,
     WebGLRenderer
 } from 'three';
+import * as TWEEN from "@tweenjs/tween.js";
+import {color} from "./utils/color.js";
 
 // If you prefer to import the whole library, with the THREE prefix, use the following line instead:
 // import * as THREE from 'three'
@@ -180,7 +182,8 @@ function getColor(intersect, texture, sampleSize = 5) {
     // get the pixel data
     const data = imageData.data;
     // get the color for this pixel
-    return `rgb(${data[0]}, ${data[1]}, ${data[2]})`;
+    const color_brain = new color(data[0], data[1], data[2]);
+    return color_brain.get_color();
 }
 
 const textureLoader = new TextureLoader();
@@ -194,6 +197,9 @@ const texture = textureLoader.load(
         console.error('Error loading texture:', error); // Log any loading error
     }
 );
+
+const animation_camera = [];
+
 // Utilisation dans votre événement de clic
 function onDoubleClick(event) {
     mouse.set(
@@ -210,6 +216,23 @@ function onDoubleClick(event) {
 
         if (object.material.map) {
             const dominantColor = getColor(intersect, texture);
+            if (dominantColor === "yellow") {
+                console.log("C'est la zone du cerveau yellow");
+                const coords = {x: camera.position.x, y: camera.position.y, z: camera.position.z};
+                const vector = {x: 0.011551295904720461, y: 2.756158518200808, z: -1.1846758164629068};
+                console.log("camera position: ", camera.position);
+                const anim = new TWEEN.Tween(camera.position)
+                    .to({x: vector.x, y: vector.y, z: vector.z})
+                    .easing(TWEEN.Easing.Quadratic.Out)
+                    .onUpdate(() => {
+                        camera.position.set(camera.position.x, camera.position.y, camera.position.z);
+                        camera.lookAt(0, 0, 0);
+                    })
+                    .start();
+                animation_camera.push(anim);
+                console.log("camera position: ", camera.position);
+
+            }
             console.log(`Couleur dominante à l'intersection : ${dominantColor}`);
         } else {
             console.error('L\'objet n\'a pas de texture');
@@ -254,6 +277,7 @@ const animation = () => {
 
     cube.rotation.x = elapsed / 2;
     cube.rotation.y = elapsed / 1;
+    animation_camera.forEach(anim => anim.update());
 
 
     renderer.render(scene, camera);
