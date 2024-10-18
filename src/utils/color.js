@@ -16,8 +16,11 @@ export class color {
             return "brown";
         } else if (this.r === 224 && this.g === 221 && this.b === 64) {
             return "yellow";
+        }
+        else if (this.r === 195 && this.g === 43 && this.b === 42) {
+            return "red";
         } else {
-            return "Error";
+            return "color not found";
         }
     }
 
