@@ -23,6 +23,7 @@ import {
 } from 'three';
 import * as TWEEN from "@tweenjs/tween.js";
 import {color} from "./utils/color.js";
+import { Text } from 'troika-three-text';
 
 // If you prefer to import the whole library, with the THREE prefix, use the following line instead:
 // import * as THREE from 'three'
@@ -200,7 +201,8 @@ const texture = textureLoader.load(
 
 const animation_camera = [];
 
-// Utilisation dans votre événement de clic
+let text;
+
 function onDoubleClick(event) {
     mouse.set(
         (event.clientX / renderer.domElement.clientWidth) * 2 - 1,
@@ -218,20 +220,31 @@ function onDoubleClick(event) {
             const dominantColor = getColor(intersect, texture);
             if (dominantColor === "yellow") {
                 console.log("C'est la zone du cerveau yellow");
-                const coords = {x: camera.position.x, y: camera.position.y, z: camera.position.z};
+                if (text) {
+                    scene.remove(text);
+                }
+
+                text = new Text();
+                text.text = 'Vous avez cliqué sur la zone du cerveau jaune';
+                text.fontSize = 0.2;
+                text.color = 0xFFFFFF; // White color
+                text.position.set(intersect.point.x, intersect.point.y, intersect.point.z);
+                text.sync();
+                
+                scene.add(text);
+                
                 const vector = {x: 0.011551295904720461, y: 2.756158518200808, z: -1.1846758164629068};
                 console.log("camera position: ", camera.position);
                 const anim = new TWEEN.Tween(camera.position)
-                    .to({x: vector.x, y: vector.y, z: vector.z})
+                    .to(vector)
                     .easing(TWEEN.Easing.Quadratic.Out)
                     .onUpdate(() => {
-                        camera.position.set(camera.position.x, camera.position.y, camera.position.z);
                         camera.lookAt(0, 0, 0);
                     })
                     .start();
+
                 animation_camera.push(anim);
                 console.log("camera position: ", camera.position);
-
             }
             console.log(`Couleur dominante à l'intersection : ${dominantColor}`);
         } else {
@@ -240,6 +253,26 @@ function onDoubleClick(event) {
     }
 }
 
+function onClick(event) {
+    mouse.set(
+        (event.clientX / renderer.domElement.clientWidth) * 2 - 1,
+        -(event.clientY / renderer.domElement.clientHeight) * 2 + 1
+    );
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects(scene.children, true);
+
+    const textExists = intersects.some(intersect => intersect.object === text);
+
+    if (text && !textExists) {
+        scene.remove(text);
+        text = null; // Clear the reference
+        console.log('Texte supprimé');
+    }
+}
+
+window.addEventListener('dblclick', onDoubleClick); 
+window.addEventListener('click', onClick); 
 
 // Renderer color space setting
 renderer.outputEncoding = SRGBColorSpace;
