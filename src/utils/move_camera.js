@@ -1,13 +1,13 @@
 "use strict";
 
-
 import {Easing, Tween} from "@tweenjs/tween.js";
 import json_file from "../data/color_position.json";
+import {displayInfo} from "./display_info.js";
 
 class move_camera_with_color {
     constructor(color_brain, camera) {
         this.color = color_brain;
-        this.camera = camera
+        this.camera = camera;
     }
 
     move_to() {
@@ -32,8 +32,6 @@ class move_camera_with_color {
             default:
                 console.error("Color not found");
                 return;
-
-
         }
         return new Tween(this.camera.position)
             .to({x: vector.x, y: vector.y, z: vector.z})
@@ -42,11 +40,11 @@ class move_camera_with_color {
                 this.camera.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
                 this.camera.lookAt(0, 0, 0);
             })
+            .onComplete(() => {
+                displayInfo(this.color.get_color(), this.camera);
+            })
             .start();
-
     }
-
-
 }
 
 export {move_camera_with_color};
