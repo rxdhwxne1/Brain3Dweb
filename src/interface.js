@@ -1,6 +1,6 @@
 "use strict";
 import ThreeMeshUI from "three-mesh-ui";
-import {Color} from "three";
+import {Color, Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader, Vector3} from "three";
 import FontJSON from "./assets/NotoSans-Italic-VariableFont_wdth,wght.json";
 import FontImage from "./assets/NotoSans-Italic-VariableFont_wdth,wght.png";
 
@@ -40,11 +40,6 @@ export class Interface {
             fontSize: 0.09,
         });
 
-        title.add(
-            new ThreeMeshUI.Text({
-                content: this.translations[this.selectedLanguage].intro,
-            })
-        );
         container.add(title);
 
         const contentContainer = new ThreeMeshUI.Block({
@@ -64,7 +59,7 @@ export class Interface {
         let buttonContainer, buttonText;
         if (this.brain_loader) {
 
-             buttonContainer = new ThreeMeshUI.Block({
+            buttonContainer = new ThreeMeshUI.Block({
                 width: 0.4,
                 height: 0.15,
                 justifyContent: 'center',
@@ -74,7 +69,7 @@ export class Interface {
                 backgroundColor: new Color(0xCACACA),
             });
 
-             buttonText = new ThreeMeshUI.Text({
+            buttonText = new ThreeMeshUI.Text({
                 content: this.translations[this.selectedLanguage].button,
                 fontSize: 0.05,
             });
@@ -125,16 +120,117 @@ export class Interface {
             contentContainer.add(new ThreeMeshUI.Block({height: 0.7}));
             contentContainer.add(buttonContainer);
         }
-        this.createLanguageDropdown(container, title, content, buttonText);
+        const top = new ThreeMeshUI.Block({
+            justifyContent: 'center',
+            contentDirection: 'row-reverse',
+            fontFamily: FontJSON,
+            fontTexture: FontImage,
+            fontSize: 0.07,
+            padding: 0.02,
+            borderRadius: 0.11
+        });
+        const ttsButton = this.createTTSButton()
+        top.add(ttsButton);
+        this.createLanguageDropdown(top, container, title, content, buttonText);
         container.add(contentContainer);
+
+        title.add(
+            new ThreeMeshUI.Text({
+                content: this.translations[this.selectedLanguage].intro,
+            })
+        );
+
         button.push(buttonContainer);
     }
 
-    createLanguageDropdown(container, titleText, contentText, buttonText) {
+    createTTSButton() {
+        const ttsButton = new ThreeMeshUI.Block({
+            width: 0.12,
+            height: 0.12,
+            justifyContent: 'center',
+            margin: 0.05,
+            borderRadius: 0.05,
+            backgroundOpacity: 0.8,
+            backgroundColor: new Color(0xffffff),
+        });
+
+        const ttsButtonText = new ThreeMeshUI.Text({
+            content: '', // You can leave this empty or put some text if needed
+            fontSize: 0.06,
+            fontColor: new Color(0xFFFFFF), // White color for contrast
+        });
+
+        const loader = new TextureLoader();
+        loader.load(
+            './assets/sound_icon.png',
+            (texture) => {
+                // Create a mesh for the emoji
+                const emojiMaterial = new MeshBasicMaterial({map: texture});
+                const emojiGeometry = new PlaneGeometry(0.1, 0.1); // Adjust the size as needed
+                const emojiMesh = new Mesh(emojiGeometry, emojiMaterial);
+
+                // Position the emoji on the button
+                emojiMesh.position.set(0, 0, 0.01); // Slightly in front to ensure visibility
+                ttsButton.add(emojiMesh);
+                console.log("TTS button created with texture");
+            },
+            undefined,
+            (err) => {
+                console.error("An error occurred loading the texture:", err);
+            }
+        );
+
+
+        ttsButton.add(ttsButtonText);
+
+        ttsButton.setupState({
+            state: 'selected',
+            onSet: () => {
+                this.activateTTS();
+            }
+        });
+
+        ttsButton.setupState({
+            state: 'hovered',
+            attributes: {
+                offset: 0.02,
+                backgroundColor: new Color(0xDD0000), // Slightly darker red on hover
+                fontColor: new Color(0xDD0000),
+            }
+        });
+
+        ttsButton.setupState({
+            state: 'idle',
+            attributes: {
+                offset: 0.02,
+                backgroundColor: new Color(0x666666),
+                fontColor: new Color(0xffffff)
+            }
+        });
+
+
+        button.push(ttsButton);
+        return ttsButton;
+    }
+
+    activateTTS() {
+        if (!window.speechSynthesis) {
+            console.error("Speech synthesis not supported by your browser.");
+            return;
+        }
+        const textToSpeak = this.translations[this.selectedLanguage].content;
+        const speech = new SpeechSynthesisUtterance(textToSpeak);
+        speech.lang = this.selectedLanguage === 'fr' ? 'fr-FR' : 'en-US';
+        window.speechSynthesis.speak(speech);
+        console.log("TTS activated for language:", this.selectedLanguage);
+    }
+
+    createLanguageDropdown(top, container, titleText, contentText, buttonText) {
         const dropdownButton = new ThreeMeshUI.Block({
             width: 0.4,
             height: 0.15,
             justifyContent: 'center',
+            contentDirection: 'row-reverse',
             margin: 0.05,
             borderRadius: 0.05,
             backgroundOpacity: 0.8,
@@ -147,7 +243,8 @@ export class Interface {
         });
 
         dropdownButton.add(dropdownButtonText);
-        container.add(dropdownButton);
+        top.add(dropdownButton);
+        container.add(top);
 
         const dropdownContainer = new ThreeMeshUI.Block({
             height: 0,
