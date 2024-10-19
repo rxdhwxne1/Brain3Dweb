@@ -1,0 +1,17 @@
+{
+  "en": {
+    "intro": "Introduction",
+    "content": "Click on start to display the brain and then you can click on the brain area to know more",
+    "button": "Start"
+  },
+  "fr": {
+    "intro": "Introduction",
+    "content": "Cliquez sur commercer pour afficher le cerveau et ensuite vous pouvez cloquer sur les zone du cerveau pour en savoir plus",
+    "button": "Commencer"
+  },
+  "es": {
+    "intro": "Introducción",
+    "content": "Haz clic en comenzar para mostrar el cerebro y luego puedes hacer clic en la zona del cerebro para obtener más información",
+    "button": "Comenzar"
+  }
+}
