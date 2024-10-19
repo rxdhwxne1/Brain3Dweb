@@ -220,7 +220,7 @@ export class Interface {
         }
         const textToSpeak = this.translations[this.selectedLanguage].content;
         const speech = new SpeechSynthesisUtterance(textToSpeak);
-        speech.lang = this.selectedLanguage === 'fr' ? 'fr-FR' : 'en-US';
+        speech.lang = this.selectedLanguage === 'fr' ? 'fr-FR' : this.selectedLanguage === 'en' ? 'en-US' : 'es-ES';
         window.speechSynthesis.speak(speech);
         console.log("TTS activated for language:", this.selectedLanguage);
     }
@@ -251,6 +251,7 @@ export class Interface {
             width: 0.4,
             justifyContent: 'center',
             flexDirection: 'column',
+            contentDirection: 'row-reverse',
             backgroundOpacity: 0,
         });
 
@@ -259,7 +260,7 @@ export class Interface {
         const populateDropdown = () => {
             dropdownContainer.clear();
 
-            let languages = ['fr', 'en'];
+            let languages = ['fr', 'en', 'es'];
             languages = languages.filter((lang) => lang !== this.selectedLanguage);
             languages.forEach((lang) => {
                 const langOption = new ThreeMeshUI.Block({
