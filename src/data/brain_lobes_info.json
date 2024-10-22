@@ -1,23 +1,33 @@
 {
-    "yellow": {
-      "name": "Lobe Frontal",
-      "description": "Le lobe frontal est responsable de fonctions exécutives telles que la prise de décision, le contrôle moteur volontaire et la régulation des émotions."
-    },
-    "green": {
-      "name": "Lobe Pariétal",
-      "description": "Le lobe pariétal traite les informations sensorielles, y compris la perception tactile, et joue un rôle dans l'orientation spatiale."
-    },
-    "blue": {
-      "name": "Lobe Temporal",
-      "description": "Le lobe temporal est essentiel pour le traitement de l'audition, de la mémoire et de la compréhension du langage."
-    },
-    "brown": {
-      "name": "Lobe Occipital",
-      "description": "Le lobe occipital est principalement responsable du traitement de la vision et de l'interprétation des signaux visuels."
-    },
-    "red": {
-      "name": "Cervelet",
-      "description": "Le cervelet joue un rôle clé dans la coordination des mouvements, l'équilibre et la précision des actions motrices."
+  "yellow": {
+    "fr": {
+      "intro": "Lobe Frontal",
+      "content": "Le lobe frontal est responsable de fonctions executives telles que la prise de decision, le controle moteur volontaire et la regulation des emotions."
     }
+  },
+  "green": {
+    "fr": {
+      "intro": "Lobe Parietal",
+      "content": "Le lobe parietal traite les informations sensorielles, y compris la perception tactile, et joue un role dans l'orientation spatiale."
+    }
+  },
+  "blue": {
+    "fr": {
+      "intro": "Lobe Temporal",
+      "content": "Le lobe temporal est essentiel pour le traitement de l'audition, de la memoire et de la comprehension du langage."
+    }
+  },
+  "brown": {
+    "fr": {
+      "intro": "Lobe Occipital",
+      "content": "Le lobe occipital est principalement responsable du traitement de la vision et de l'interpretation des signaux visuels."
+    }
+  },
+  "red": {
+    "fr": {
+      "intro": "Cervelet",
+      "content": "Le cervelet joue un role cle dans la coordination des mouvements, l'equilibre et la precision des actions motrices."
+    }
+  }
 }
   

@@ -6,8 +6,7 @@
 import {
     ArrowHelper,
     BoxGeometry,
-    Clock, Color,
-    ConeGeometry,
+    Clock,
     Line,
     Mesh,
     MeshNormalMaterial,
@@ -24,8 +23,6 @@ import {
 import {color} from "./utils/color.js";
 import {move_camera_with_color} from "./utils/move_camera.js";
 import ThreeMeshUI from 'three-mesh-ui';
-import FontJSON from "./assets/Roboto-msdf.json";
-import FontImage from "./assets/Roboto-msdf.png";
 // If you prefer to import the whole library, with the THREE prefix, use the following line instead:
 // import * as THREE from 'three'
 // NOTE: three/addons alias is supported by Rollup: you can use it interchangeably with three/examples/jsm/
@@ -46,6 +43,8 @@ import FontImage from "./assets/Roboto-msdf.png";
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {button, Interface} from "./interface.js";
+import trad_intro from "./data/intro_interface.json";
 // Example of hard link to official repo for data, if needed
 // const MODEL_PATH = 'https://raw.githubusercontent.com/mrdoob/js/r148/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb';
 
@@ -84,7 +83,6 @@ const renderer = new WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.listenToKeyEvents(window); // optional
 
@@ -95,18 +93,21 @@ let sceneMeshes = []
 
 //scene.add(cube);
 const loader = new GLTFLoader()
-loader.load('assets/models/brain_project.glb', function (gltf) {
-    gltf.scene.traverse(function (child) {
-            sceneMeshes.push(child)
-            scene.add(gltf.scene);
-        },
-        function (xhr) {
-            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-        },
-        function (error) {
-            console.log('An error happened');
-        });
-});
+
+function brain_loader() {
+    loader.load('assets/models/brain_project.glb', function (gltf) {
+        gltf.scene.traverse(function (child) {
+                sceneMeshes.push(child)
+                scene.add(gltf.scene);
+            },
+            function (xhr) {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+            },
+            function (error) {
+                console.log('An error happened');
+            });
+    });
+}
 
 
 //renderer.physicallyCorrectLights = true //deprecated
@@ -135,6 +136,7 @@ renderer.domElement.addEventListener('mousedown', () => {
         selectState = true;  // Mark as selected (or clicked)
         intersect.object.setState('selected');  // Change state to selected
     }
+
 });
 
 renderer.domElement.addEventListener('mouseup', () => {
@@ -142,7 +144,6 @@ renderer.domElement.addEventListener('mouseup', () => {
 });
 
 
-const coneGeometry = new ConeGeometry(0.05, 0.2, 8)
 const arrowHelper = new ArrowHelper(
     new Vector3(),
     new Vector3(),
@@ -239,7 +240,8 @@ function onDoubleClick(event) {
         if (object.material.map) {
             const dominantColor = getColor(intersect, texture);
             console.log("camera position: ", camera.position);
-            animation_camera = new move_camera_with_color(dominantColor, camera).move_to();
+            animation_camera = new move_camera_with_color(dominantColor, camera, scene).move_to();
+
             console.log(`Couleur dominante à l'intersection : ${dominantColor}`);
         } else {
             console.error('L\'objet n\'a pas de texture');
@@ -271,124 +273,12 @@ window.addEventListener('click', onClick);
 // Renderer color space setting
 renderer.outputEncoding = SRGBColorSpace;
 
-let button = []
 
-function MakeIntroPlane() {
-    const container = new ThreeMeshUI.Block({
-        ref: "container",
-        padding: 0.025,
-        fontFamily: FontJSON,
-        fontTexture: FontImage,
-        fontColor: new Color(0xffffff),
-        backgroundOpacity: 0,
-    });
-
-    container.position.set(camera.position.x, camera.position.y, camera.position.z + 2);
-    container.rotation.x = -0.55;
-    scene.add(container);
-
-    // Title block
-    const title = new ThreeMeshUI.Block({
-        height: 0.2,
-        width: 1.5,
-        margin: 0.01,
-        justifyContent: "center",
-        fontSize: 0.09,
-    });
-
-    title.add(
-        new ThreeMeshUI.Text({
-            content: "Introduction",
-        })
-    );
-    container.add(title);
-
-    // Content container block with flexbox-like layout (row)
-    const contentContainer = new ThreeMeshUI.Block({
-        height: 0.5,
-        width: 0.5,
-        margin: 0.01,
-        justifyContent: "center", // Align items in the center
-        alignContent: "center", // Align vertically centered
-        backgroundOpacity: 0.5,
-        flexDirection: "column",  // This will place items next to each other horizontally
-    });
-
-    // Text content
-    const content = new ThreeMeshUI.Text({
-        content: "Cliquez sur une zone du cerveau pour en savoir plus",
-        fontSize: 0.05,
-    });
-
-    // Button container to position the button next to the text
-    const buttonContainer = new ThreeMeshUI.Block({
-        width: 0.4,
-        height: 0.15,
-        justifyContent: 'center',
-        margin: 0.01,
-        borderRadius: 0.075,
-        backgroundOpacity: 0.8,
-        backgroundColor: new Color(0xCACACA),
-    });
-
-    const buttonText = new ThreeMeshUI.Text({
-        content: "Commencer",
-        fontSize: 0.05,
-    });
-
-    const selectedAttributes = {
-        offset: 0.02,
-        backgroundColor: new Color(0x777777),
-        fontColor: new Color(0x222222)
-    };
-
-    const hoveredStateAttributes = {
-        state: 'hovered',
-        attributes: {
-            offset: 0.035,
-            backgroundColor: new Color(0x999999),
-            backgroundOpacity: 1,
-            fontColor: new Color(0xffffff)
-        },
-    };
-
-    const idleStateAttributes = {
-        state: 'idle',
-        attributes: {
-            offset: 0.035,
-            backgroundColor: new Color(0xCACACA),
-            backgroundOpacity: 0.3,
-            fontColor: new Color(0xffffff)
-        },
-    };
-
-    buttonContainer.setupState({
-        state: "selected",
-        attributes: selectedAttributes,
-        onSet: (self) => {
-            console.log("Button selected");
-            scene.remove(container);
-        }
-    });
-    buttonContainer.setupState(hoveredStateAttributes);
-    buttonContainer.setupState(idleStateAttributes);
-
-
-    buttonContainer.add(buttonText);
-
-    // Add text and button side-by-side in the content container
-    contentContainer.add(content);
-    // add space between text and button
-    contentContainer.add(new ThreeMeshUI.Block({height: 0.5}));
-    contentContainer.add(buttonContainer);
-
-
-    container.add(contentContainer);
-    button.push(buttonContainer);
-
-}
-
-MakeIntroPlane();
+new Interface({
+    x: camera.position.x,
+    y: camera.position.y,
+    z: camera.position.z + 1.6
+}, scene, JSON.parse(JSON.stringify(trad_intro)), brain_loader);
 
 
 camera.position.z = 3;
@@ -425,6 +315,10 @@ function updateButtons() {
         }
 
     }
+    if (intersect === null) {
+        // Component.setState internally call component.set with the options you defined in component.setupState
+        return;
+    }
 
     // Update non-targeted buttons state
 
@@ -439,14 +333,19 @@ function updateButtons() {
 
     });
 
-
 }
+
 
 function raycast() {
     // Perform the raycast
     return button.reduce((closestIntersection, obj) => {
-
-        const intersection = raycaster.intersectObject(obj, true);
+        let intersection;
+        try {
+            intersection = raycaster.intersectObject(obj, true);
+        } catch (e) {
+            console.log(e);
+            return null;
+        }
 
         if (!intersection[0]) return closestIntersection;
 
@@ -463,11 +362,17 @@ function raycast() {
     }, null);
 }
 
+
 // Main loop
 const animation = () => {
 
     renderer.setAnimationLoop(animation); // requestAnimationFrame() replacement, compatible with XR
-    ThreeMeshUI.update();
+    try {
+        ThreeMeshUI.update();
+    } catch (e) {
+        ThreeMeshUI.update();
+    }
+
 
     const delta = clock.getDelta();
     const elapsed = clock.getElapsedTime();
