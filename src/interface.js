@@ -1,6 +1,6 @@
 "use strict";
 import ThreeMeshUI from "three-mesh-ui";
-import {Color, Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader, Vector3} from "three";
+import {Color, Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
 import FontJSON from "./assets/NotoSans-Italic-VariableFont_wdth,wght.json";
 import FontImage from "./assets/NotoSans-Italic-VariableFont_wdth,wght.png";
 
@@ -8,18 +8,14 @@ export let button = []
 
 
 export class Interface {
-    constructor(camera, scene, brain_loader, getTranslations) {
-        this.camera = camera;
+    constructor(position, scene, getTranslations, brain_loader) {
+        this.position = position;
         this.scene = scene;
         this.brain_loader = brain_loader; // only for intro interface
         this.selectedLanguage = 'fr';
         this.dropdownVisible = false;
         this.translations = getTranslations;
-        this.createIntroPlane();
-    }
-
-    createIntroPlane() {
-        const container = new ThreeMeshUI.Block({
+        this.container = new ThreeMeshUI.Block({
             ref: "container",
             padding: 0.025,
             fontFamily: FontJSON,
@@ -27,10 +23,15 @@ export class Interface {
             fontColor: new Color(0xffffff),
             backgroundOpacity: 0,
         });
+        this.createIntroPlane();
+    }
 
-        container.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z + 1.6);
-        container.rotation.x = -0.55;
-        this.scene.add(container);
+    createIntroPlane() {
+        this.container.position.set(this.position.x, this.position.y, this.position.z);
+        this.container.rotation.x = this.position.rotation ? this.position.rotation.x : -0.55;
+        this.container.rotation.y = this.position.rotation ? this.position.rotation.y : 0;
+        this.container.rotation.z = this.position.rotation ? this.position.rotation.z : 0;
+        this.scene.add(this.container);
 
         const title = new ThreeMeshUI.Block({
             height: 0.2,
@@ -40,7 +41,7 @@ export class Interface {
             fontSize: 0.09,
         });
 
-        container.add(title);
+        this.container.add(title);
 
         const contentContainer = new ThreeMeshUI.Block({
             height: 0.5,
@@ -56,8 +57,11 @@ export class Interface {
             content: this.translations[this.selectedLanguage].content,
             fontSize: 0.05,
         });
-        let buttonContainer, buttonText;
-        if (this.brain_loader) {
+        let buttonContainer = null, buttonText = new ThreeMeshUI.Text({
+            content: this.translations[this.selectedLanguage].button,
+            fontSize: 0.05,
+        });
+        if (this.brain_loader !== undefined) {
 
             buttonContainer = new ThreeMeshUI.Block({
                 width: 0.4,
@@ -69,10 +73,6 @@ export class Interface {
                 backgroundColor: new Color(0xCACACA),
             });
 
-            buttonText = new ThreeMeshUI.Text({
-                content: this.translations[this.selectedLanguage].button,
-                fontSize: 0.05,
-            });
 
             const selectedAttributes = {
                 offset: 0.02,
@@ -105,8 +105,9 @@ export class Interface {
                 attributes: selectedAttributes,
                 onSet: (self) => {
                     console.log("Button selected");
-                    this.scene.remove(container);
+                    this.scene.remove(this.container);
                     this.brain_loader();
+                    button = [];
                 }
             });
             buttonContainer.setupState(hoveredStateAttributes);
@@ -116,7 +117,7 @@ export class Interface {
         }
 
         contentContainer.add(content);
-        if (this.brain_loader) {
+        if (buttonContainer !== null) {
             contentContainer.add(new ThreeMeshUI.Block({height: 0.7}));
             contentContainer.add(buttonContainer);
         }
@@ -131,16 +132,19 @@ export class Interface {
         });
         const ttsButton = this.createTTSButton()
         top.add(ttsButton);
-        this.createLanguageDropdown(top, container, title, content, buttonText);
-        container.add(contentContainer);
+        this.createLanguageDropdown(top, title, content, buttonText);
+        this.container.add(contentContainer);
 
         title.add(
             new ThreeMeshUI.Text({
                 content: this.translations[this.selectedLanguage].intro,
             })
         );
+        if (buttonContainer !== null) {
+            button.push(buttonContainer);
+        }
 
-        button.push(buttonContainer);
+        ThreeMeshUI.update();
     }
 
     createTTSButton() {
@@ -225,7 +229,7 @@ export class Interface {
         console.log("TTS activated for language:", this.selectedLanguage);
     }
 
-    createLanguageDropdown(top, container, titleText, contentText, buttonText) {
+    createLanguageDropdown(top, titleText, contentText, buttonText) {
         const dropdownButton = new ThreeMeshUI.Block({
             width: 0.4,
             height: 0.15,
@@ -244,7 +248,7 @@ export class Interface {
 
         dropdownButton.add(dropdownButtonText);
         top.add(dropdownButton);
-        container.add(top);
+        this.container.add(top);
 
         const dropdownContainer = new ThreeMeshUI.Block({
             height: 0,
@@ -255,7 +259,7 @@ export class Interface {
             backgroundOpacity: 0,
         });
 
-        container.add(dropdownContainer);
+        this.container.add(dropdownContainer);
 
         const populateDropdown = () => {
             dropdownContainer.clear();
@@ -286,7 +290,7 @@ export class Interface {
                         this.updateTextContent(titleText, contentText, buttonText);
                         dropdownButtonText.set({content: this.selectedLanguage.toUpperCase()});
                         this.dropdownVisible = false;
-                        this.destroyDropdown(container, dropdownContainer);
+                        this.destroyDropdown(this.container, dropdownContainer);
                         console.log("Selected language:", this.selectedLanguage);
                     }
                 });

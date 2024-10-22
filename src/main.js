@@ -7,7 +7,6 @@ import {
     ArrowHelper,
     BoxGeometry,
     Clock,
-    ConeGeometry,
     Line,
     Mesh,
     MeshNormalMaterial,
@@ -44,7 +43,7 @@ import ThreeMeshUI from 'three-mesh-ui';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {Interface, button} from "./interface.js";
+import {button, Interface} from "./interface.js";
 import trad_intro from "./data/intro_interface.json";
 // Example of hard link to official repo for data, if needed
 // const MODEL_PATH = 'https://raw.githubusercontent.com/mrdoob/js/r148/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb';
@@ -83,7 +82,6 @@ const mouse = new Vector2();
 const renderer = new WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.listenToKeyEvents(window); // optional
@@ -242,7 +240,8 @@ function onDoubleClick(event) {
         if (object.material.map) {
             const dominantColor = getColor(intersect, texture);
             console.log("camera position: ", camera.position);
-            animation_camera = new move_camera_with_color(dominantColor, camera).move_to();
+            animation_camera = new move_camera_with_color(dominantColor, camera, scene).move_to();
+
             console.log(`Couleur dominante à l'intersection : ${dominantColor}`);
         } else {
             console.error('L\'objet n\'a pas de texture');
@@ -275,7 +274,11 @@ window.addEventListener('click', onClick);
 renderer.outputEncoding = SRGBColorSpace;
 
 
-new Interface(camera, scene, brain_loader,JSON.parse(JSON.stringify(trad_intro)));
+new Interface({
+    x: camera.position.x,
+    y: camera.position.y,
+    z: camera.position.z + 1.6
+}, scene, JSON.parse(JSON.stringify(trad_intro)), brain_loader);
 
 
 camera.position.z = 3;
@@ -312,6 +315,10 @@ function updateButtons() {
         }
 
     }
+    if (intersect === null) {
+        // Component.setState internally call component.set with the options you defined in component.setupState
+        return;
+    }
 
     // Update non-targeted buttons state
 
@@ -332,8 +339,13 @@ function updateButtons() {
 function raycast() {
     // Perform the raycast
     return button.reduce((closestIntersection, obj) => {
-
-        const intersection = raycaster.intersectObject(obj, true);
+        let intersection;
+        try {
+            intersection = raycaster.intersectObject(obj, true);
+        } catch (e) {
+            console.log(e);
+            return null;
+        }
 
         if (!intersection[0]) return closestIntersection;
 
