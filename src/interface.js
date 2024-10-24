@@ -2,7 +2,14 @@
 import ThreeMeshUI from "three-mesh-ui";
 import {Color, Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
 import FontJSON from "./assets/NotoSans-Italic-VariableFont_wdth,wght.json" with {type: "json"};
-import FontImage from "./assets/NotoSans-Italic-VariableFont_wdth,wght.png";
+
+async function getFontImage() {
+    return URL.createObjectURL(await fetch('./assets/NotoSans-Italic-VariableFont_wdth,wght.png').then((response) => {
+        return response.blob();
+    }));
+}
+
+const FontImage = await getFontImage();
 
 
 export let button = []
