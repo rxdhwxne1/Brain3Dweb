@@ -2,9 +2,9 @@
 
 
 import {Easing, Tween} from "@tweenjs/tween.js";
-import json_file from "../data/color_position.json";
+import json_file from "../data/color_position.json" with {type: "json"};
 import {Interface} from "../interface.js";
-import brain_info from "../data/brain_lobes_info.json";
+import brain_info from "../data/brain_lobes_info.json" with {type: "json"};
 import {Vector3} from "three";
 
 

@@ -44,7 +44,7 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {button, Interface} from "./interface.js";
-import trad_intro from "./data/intro_interface.json";
+import trad_intro from "./data/intro_interface.json" with {type: "json"};
 // Example of hard link to official repo for data, if needed
 // const MODEL_PATH = 'https://raw.githubusercontent.com/mrdoob/js/r148/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb';
 
