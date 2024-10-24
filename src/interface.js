@@ -9,7 +9,7 @@ async function getFontImage() {
     }));
 }
 
-const FontImage = getFontImage();
+const FontImage = await getFontImage();
 
 
 export let button = []

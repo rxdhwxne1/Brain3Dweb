@@ -1,7 +1,7 @@
 "use strict";
 
-
-import {Easing, Tween} from "@tweenjs/tween.js";
+import * as tween from "@tweenjs/tween.js";
+//import {Easing, Tween} from "@tweenjs/tween.js";
 import json_file from "../data/color_position.json" with {type: "json"};
 import {Interface} from "../interface.js";
 import brain_info from "../data/brain_lobes_info.json" with {type: "json"};
@@ -46,9 +46,9 @@ class move_camera_with_color {
                 console.error("Color not found");
                 return;
         }
-        return new Tween(this.camera.position)
+        return new tween.Tween(this.camera.position)
             .to({x: vector.x, y: vector.y, z: vector.z})
-            .easing(Easing.Quadratic.Out)
+            .easing(tween.Easing.Quadratic.Out)
             .onUpdate(() => {
                 this.camera.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
                 this.camera.lookAt(0, 0, 0);
