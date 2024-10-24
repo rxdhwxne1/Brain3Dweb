@@ -10,6 +10,11 @@ export default defineConfig({
     server: {
         open: true
     },
+    resolve: {
+        alias: {
+            'three': '/node_modules/three/build/three.module.js'
+        }
+    },
     plugins: [
         viteStaticCopy({
             targets: [
