@@ -2,7 +2,7 @@
 import ThreeMeshUI from "three-mesh-ui";
 import {Color, Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
 import FontJSON from "./assets/NotoSans-Italic-VariableFont_wdth,wght.json" with {type: "json"};
-import FontImage from "./assets/NotoSans-Italic-VariableFont_wdth,wght.png" with {type: "image/png"};
+import FontImage from "./assets/NotoSans-Italic-VariableFont_wdth,wght.png" with {type: "image"};
 
 export let button = []
 
