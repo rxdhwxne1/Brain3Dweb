@@ -6,7 +6,8 @@ export default defineConfig({
     base: './',
     clearScreen: false,
     build: {
-        sourcemap: true
+        sourcemap: true,
+        target: "ES2022"
     },
     server: {
         open: true
