@@ -34,5 +34,8 @@ export default defineConfig({
             ]
         }),
         glsl()
-    ]
+    ],
+    json: {
+        namedExports: true
+    }
 });
