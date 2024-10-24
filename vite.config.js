@@ -4,7 +4,6 @@ import glsl from 'vite-plugin-glsl';
 
 export default defineConfig({
     base: './',
-    assetsInclude: ['**/*.png', '**/*.jpg', '**/*.svg', '**/*.ico', '**/*.json'],
     clearScreen: false,
     build: {
         sourcemap: true
