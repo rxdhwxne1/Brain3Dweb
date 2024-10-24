@@ -5,6 +5,7 @@ import glsl from 'vite-plugin-glsl';
 export default defineConfig({
     base: '/dev3Dweb/',
     clearScreen: false,
+    assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg'],
     build: {
         sourcemap: false,
         target: "ES2022"
