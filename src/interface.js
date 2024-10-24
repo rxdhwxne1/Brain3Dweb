@@ -6,7 +6,6 @@ import FontImage from "./assets/NotoSans-Italic-VariableFont_wdth,wght.png";
 
 export let button = []
 
-
 export class Interface {
     constructor(position, scene, getTranslations, brain_loader) {
         this.position = position;
