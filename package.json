@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@tweenjs/tween.js": "^25.0.0",
+    "browser-sync": "^3.0.3",
     "three": "^0.169.0",
     "three-mesh-ui": "^6.5.4"
   }
