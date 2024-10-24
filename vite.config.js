@@ -3,10 +3,10 @@ import {viteStaticCopy} from 'vite-plugin-static-copy';
 import glsl from 'vite-plugin-glsl';
 
 export default defineConfig({
-    base: './',
+    base: '/dev3Dweb/',
     clearScreen: false,
     build: {
-        sourcemap: true,
+        sourcemap: false,
         target: "ES2022"
     },
     server: {
