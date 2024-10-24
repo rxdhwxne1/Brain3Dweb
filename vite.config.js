@@ -3,6 +3,7 @@ import {viteStaticCopy} from 'vite-plugin-static-copy';
 import glsl from 'vite-plugin-glsl';
 
 export default defineConfig({
+    base: './',
     clearScreen: false,
     build: {
         sourcemap: true
