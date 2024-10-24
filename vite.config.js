@@ -8,7 +8,8 @@ export default defineConfig({
     assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg'],
     build: {
         sourcemap: false,
-        target: "ES2022"
+        target: "ES2022",
+        minify: "terser"
     },
     server: {
         open: true
