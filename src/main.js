@@ -176,14 +176,11 @@ function onMouseMove(event) {
 
         arrowHelper.setDirection(n)
         arrowHelper.position.copy(intersects[0].point)
-        console.log(n)
+        //console.log(n)
     }
 }
 
 
-//extracted().forEach((element) => {
-//    scene.add(element)
-//r})
 
 
 function getColor(intersect, texture, sampleSize = 5) {
@@ -255,16 +252,6 @@ function onClick(event) {
         -(event.clientY / renderer.domElement.clientHeight) * 2 + 1
     );
     raycaster.setFromCamera(mouse, camera);
-
-    const intersects = raycaster.intersectObjects(scene.children, true);
-
-    const textExists = intersects.some(intersect => intersect.object === text);
-
-    if (text && !textExists) {
-        scene.remove(text);
-        text = null; // Clear the reference
-        console.log('Texte supprimé');
-    }
 }
 
 window.addEventListener('dblclick', onDoubleClick); 

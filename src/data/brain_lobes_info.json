@@ -3,30 +3,70 @@
     "fr": {
       "intro": "Lobe Frontal",
       "content": "Le lobe frontal est responsable de fonctions executives telles que la prise de decision, le controle moteur volontaire et la regulation des emotions."
+    },
+    "en": {
+      "intro": "Frontal Lobe",
+      "content": "The frontal lobe is responsible for executive functions such as decision making, voluntary motor control, and regulation of emotions."
+    },
+    "es": {
+      "intro": "Lóbulo Frontal",
+      "content": "El lóbulo frontal es responsable de funciones ejecutivas como la toma de decisiones, el control motor voluntario y la regulación de las emociones."
     }
   },
   "green": {
     "fr": {
       "intro": "Lobe Parietal",
       "content": "Le lobe parietal traite les informations sensorielles, y compris la perception tactile, et joue un role dans l'orientation spatiale."
+    },
+    "en": {
+      "intro": "Parietal Lobe",
+      "content": "The parietal lobe processes sensory information, including tactile perception, and plays a role in spatial orientation."
+    },
+    "es": {
+      "intro": "Lóbulo Parietal",
+      "content": "El lóbulo parietal procesa información sensorial, incluida la percepción táctil, y juega un papel en la orientación espacial."
     }
   },
   "blue": {
     "fr": {
       "intro": "Lobe Temporal",
       "content": "Le lobe temporal est essentiel pour le traitement de l'audition, de la memoire et de la comprehension du langage."
+    },
+    "en": {
+      "intro": "Temporal Lobe",
+      "content": "The temporal lobe is essential for processing hearing, memory, and language comprehension."
+    },
+    "es": {
+      "intro": "Lóbulo Temporal",
+      "content": "El lóbulo temporal es esencial para el procesamiento de la audición, la memoria y la comprensión del lenguaje."
     }
   },
   "brown": {
     "fr": {
       "intro": "Lobe Occipital",
       "content": "Le lobe occipital est principalement responsable du traitement de la vision et de l'interpretation des signaux visuels."
+    },
+    "en": {
+      "intro": "Occipital Lobe",
+      "content": "The occipital lobe is primarily responsible for processing vision and interpreting visual signals."
+    },
+    "es": {
+      "intro": "Lóbulo Occipital",
+      "content": "El lóbulo occipital es principalmente responsable del procesamiento de la visión e interpretación de señales visuales."
     }
   },
   "red": {
     "fr": {
       "intro": "Cervelet",
       "content": "Le cervelet joue un role cle dans la coordination des mouvements, l'equilibre et la precision des actions motrices."
+    },
+    "en": {
+      "intro": "Cerebellum",
+      "content": "The cerebellum plays a key role in coordinating movements, balance, and the precision of motor actions."
+    },
+    "es": {
+      "intro": "Cerebelo",
+      "content": "El cerebelo juega un papel clave en la coordinación de movimientos, el equilibrio y la precisión de las acciones motoras."
     }
   }
 }
