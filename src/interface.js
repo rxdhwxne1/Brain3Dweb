@@ -16,12 +16,15 @@ export class Interface {
         this.dropdownVisible = false;
         this.translations = getTranslations;
         this.container = new ThreeMeshUI.Block({
+            width: 0.81,
+            height: 1.33,
             ref: "container",
             padding: 0.025,
             fontFamily: FontJSON,
             fontTexture: FontImage,
             fontColor: new Color(0xffffff),
-            backgroundOpacity: 0,
+            backgroundOpacity: 1,
+            backgroundColor: new Color(0x000000)
         });
         this.createIntroPlane();
     }
@@ -35,21 +38,23 @@ export class Interface {
 
         const title = new ThreeMeshUI.Block({
             height: 0.2,
-            width: 1.5,
+            width: 0.8,
             margin: 0.01,
             justifyContent: "center",
             fontSize: 0.09,
+            backgroundOpacity: 1,
+            backgroundColor: new Color(0x000000)
         });
 
         this.container.add(title);
 
         const contentContainer = new ThreeMeshUI.Block({
             height: 0.5,
-            width: 0.7,
+            width: 0.8,
             margin: 0.01,
             justifyContent: "center",
             alignContent: "center",
-            backgroundOpacity: 0.5,
+            backgroundOpacity: 1,
             flexDirection: "column",
         });
 
@@ -70,13 +75,13 @@ export class Interface {
                 margin: 0.01,
                 borderRadius: 0.075,
                 backgroundOpacity: 0.8,
-                backgroundColor: new Color(0xCACACA),
+                backgroundColor: new Color(0x000000)
             });
 
 
             const selectedAttributes = {
                 offset: 0.02,
-                backgroundColor: new Color(0x777777),
+                bbackgroundColor: new Color(0x000000),
                 fontColor: new Color(0x222222)
             };
 
@@ -118,17 +123,23 @@ export class Interface {
 
         contentContainer.add(content);
         if (buttonContainer !== null) {
-            contentContainer.add(new ThreeMeshUI.Block({height: 0.7}));
+            contentContainer.add(new ThreeMeshUI.Block({
+                height: 0.9,
+                width: 0.8,
+                backgroundColor: new Color(0x000000),
+                backgroundOpacity: 1,
+            }));
             contentContainer.add(buttonContainer);
         }
         const top = new ThreeMeshUI.Block({
+            width: 0.8,
             justifyContent: 'center',
             contentDirection: 'row-reverse',
             fontFamily: FontJSON,
             fontTexture: FontImage,
             fontSize: 0.07,
             padding: 0.02,
-            borderRadius: 0.11
+            borderRadius: 0.11,
         });
         const ttsButton = this.createTTSButton()
         top.add(ttsButton);
@@ -231,14 +242,14 @@ export class Interface {
 
     createLanguageDropdown(top, titleText, contentText, buttonText) {
         const dropdownButton = new ThreeMeshUI.Block({
-            width: 0.4,
+            width: 0.3,
             height: 0.15,
             justifyContent: 'center',
             contentDirection: 'row-reverse',
             margin: 0.05,
             borderRadius: 0.05,
             backgroundOpacity: 0.8,
-            backgroundColor: new Color(0x444444),
+            backgroundColor: new Color(0x000000)
         });
 
         const dropdownButtonText = new ThreeMeshUI.Text({
@@ -251,12 +262,13 @@ export class Interface {
         this.container.add(top);
 
         const dropdownContainer = new ThreeMeshUI.Block({
-            height: 0,
-            width: 0.4,
+            height: 0.1,
+            width: 0.1,
             justifyContent: 'center',
             flexDirection: 'column',
             contentDirection: 'row-reverse',
             backgroundOpacity: 0,
+            backgroundColor: new Color(0x000000)
         });
 
         this.container.add(dropdownContainer);
@@ -268,7 +280,7 @@ export class Interface {
             languages = languages.filter((lang) => lang !== this.selectedLanguage);
             languages.forEach((lang) => {
                 const langOption = new ThreeMeshUI.Block({
-                    width: 0.4,
+                    width: 0.3,
                     height: 0.1,
                     justifyContent: 'center',
                     margin: 0.05,

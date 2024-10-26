@@ -22,32 +22,28 @@ class move_camera_with_color {
         let data = JSON.parse(JSON.stringify(json_file));
         let vector;
         let trad;
-        let sound;
+        const sound = new Audio(sound_info);
         switch (this.color.get_color()) {
             case "yellow":
                 vector = {x: data.yellow.x, y: data.yellow.y, z: data.yellow.z};
                 trad = brain_info.yellow;
-                sound = new Audio(sound_info);
                 break;
             case "green":
                 vector = {x: data.green.x, y: data.green.y, z: data.green.z};
                 trad = brain_info.green;
-                sound = new Audio(sound_info);
                 break;
             case "blue":
                 vector = {x: data.blue.x, y: data.blue.y, z: data.blue.z};
                 trad = brain_info.blue;
-                sound = new Audio(sound_info);
+
                 break;
             case "brown":
                 vector = {x: data.brown.x, y: data.brown.y, z: data.brown.z};
                 trad = brain_info.brown;
-                sound = new Audio(sound_info);
                 break;
             case "red":
                 vector = {x: data.red.x, y: data.red.y, z: data.red.z};
                 trad = brain_info.red;
-                sound = new Audio(sound_info);
                 break;
             default:
                 console.error("Color not found");
