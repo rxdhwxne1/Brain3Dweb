@@ -74,7 +74,6 @@ rectLight4.position.set(-5, 0, 0); // À gauche de l'objet
 rectLight4.lookAt(0, 0, 0);
 scene.add(rectLight4);
 
-
 const raycaster = new Raycaster();
 const mouse = new Vector2();
 
@@ -89,24 +88,31 @@ const geometry = new BoxGeometry(1, 1, 1);
 const material = new MeshNormalMaterial();
 let sceneMeshes = []
 
-//scene.add(cube);
-const loader = new GLTFLoader()
+const loader2 = new TextureLoader();
+loader2.load('assets/ml-reseau-neurones.png', (texture) => {
+    scene.background = texture;
+});
+
+const loader = new GLTFLoader();
 
 function brain_loader() {
-    loader.load('assets/models/brain_project.glb', function (gltf) {
-        gltf.scene.traverse(function (child) {
-                sceneMeshes.push(child)
-                scene.add(gltf.scene);
-            },
-            function (xhr) {
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-            },
-            function (error) {
-                console.log('An error happened');
+    loader.load('assets/models/brain_project.glb',
+        function (gltf) {
+            gltf.scene.traverse(function (child) {
+                if (child.isMesh) {
+                    sceneMeshes.push(child);
+                }
             });
-    });
+            scene.add(gltf.scene);
+        },
+        function (xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function (error) {
+            console.error('An error happened', error);
+        }
+    );
 }
-
 
 //renderer.physicallyCorrectLights = true //deprecated
 renderer.useLegacyLights = false //use this instead of setting physicallyCorrectLights=true property

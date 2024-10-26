@@ -21,31 +21,40 @@ class move_camera_with_color {
         let data = JSON.parse(JSON.stringify(json_file));
         let vector;
         let trad;
+        let sound;
         switch (this.color.get_color()) {
             case "yellow":
                 vector = {x: data.yellow.x, y: data.yellow.y, z: data.yellow.z};
                 trad = brain_info.yellow;
+                sound = new Audio("../sounds/info.mp3");  // Assurez-vous que le chemin est correct
                 break;
             case "green":
                 vector = {x: data.green.x, y: data.green.y, z: data.green.z};
                 trad = brain_info.green;
+                sound = new Audio("../sounds/info.mp3");
                 break;
             case "blue":
                 vector = {x: data.blue.x, y: data.blue.y, z: data.blue.z};
                 trad = brain_info.blue;
+                sound = new Audio("../sounds/info.mp3");
                 break;
             case "brown":
                 vector = {x: data.brown.x, y: data.brown.y, z: data.brown.z};
                 trad = brain_info.brown;
+                sound = new Audio("../sounds/info.mp3");
                 break;
             case "red":
                 vector = {x: data.red.x, y: data.red.y, z: data.red.z};
                 trad = brain_info.red;
+                sound = new Audio("../sounds/info.mp3");
                 break;
             default:
                 console.error("Color not found");
                 return;
         }
+
+        sound.play();
+
         return new tween.Tween(this.camera.position)
             .to({x: vector.x, y: vector.y, z: vector.z})
             .easing(tween.Easing.Quadratic.Out)
@@ -54,7 +63,6 @@ class move_camera_with_color {
                 this.camera.lookAt(0, 0, 0);
             })
             .onComplete(() => {
-                //displayInfo(this.color, this.camera, this.scene);
                 console.log("camera moved", this.camera.position);
                 let cameraDirection = new Vector3();
                 this.camera.getWorldDirection(cameraDirection);
@@ -70,7 +78,7 @@ class move_camera_with_color {
                     y: this.camera.position.y + cameraDirection.y * distanceFromCamera - rightVector.y * leftOffset,
                     z: this.camera.position.z + cameraDirection.z * distanceFromCamera - rightVector.z * leftOffset
                 };
-                console.log(infoPanel);
+
                 if (infoPanel) {
                     console.log("remove info panel");
                     this.scene.remove(infoPanel.container);
