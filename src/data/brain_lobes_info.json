@@ -1,5 +1,5 @@
 {
-  "yellow": {
+  "blue": {
     "fr": {
       "intro": "Lobe Frontal",
       "content": "Le lobe frontal est responsable de fonctions executives telles que la prise de decision, le controle moteur volontaire et la regulation des emotions."
@@ -9,11 +9,11 @@
       "content": "The frontal lobe is responsible for executive functions such as decision making, voluntary motor control, and regulation of emotions."
     },
     "es": {
-      "intro": "Lóbulo Frontal",
-      "content": "El lóbulo frontal es responsable de funciones ejecutivas como la toma de decisiones, el control motor voluntario y la regulación de las emociones."
+      "intro": "Lobulo Frontal",
+      "content": "El lobulo frontal es responsable de funciones ejecutivas como la toma de decisiones, el control motor voluntario y la regulacion de las emociones."
     }
   },
-  "green": {
+  "yellow": {
     "fr": {
       "intro": "Lobe Parietal",
       "content": "Le lobe parietal traite les informations sensorielles, y compris la perception tactile, et joue un role dans l'orientation spatiale."
@@ -23,11 +23,11 @@
       "content": "The parietal lobe processes sensory information, including tactile perception, and plays a role in spatial orientation."
     },
     "es": {
-      "intro": "Lóbulo Parietal",
-      "content": "El lóbulo parietal procesa información sensorial, incluida la percepción táctil, y juega un papel en la orientación espacial."
+      "intro": "Lobulo Parietal",
+      "content": "El lobulo parietal procesa informacion sensorial, incluida la percepcion táctil, y juega un papel en la orientacion espacial."
     }
   },
-  "blue": {
+  "green": {
     "fr": {
       "intro": "Lobe Temporal",
       "content": "Le lobe temporal est essentiel pour le traitement de l'audition, de la memoire et de la comprehension du langage."
@@ -37,11 +37,11 @@
       "content": "The temporal lobe is essential for processing hearing, memory, and language comprehension."
     },
     "es": {
-      "intro": "Lóbulo Temporal",
-      "content": "El lóbulo temporal es esencial para el procesamiento de la audición, la memoria y la comprensión del lenguaje."
+      "intro": "Lobulo Temporal",
+      "content": "El lobulo temporal es esencial para el procesamiento de la audicion, la memoria y la comprension del lenguaje."
     }
   },
-  "brown": {
+  "red": {
     "fr": {
       "intro": "Lobe Occipital",
       "content": "Le lobe occipital est principalement responsable du traitement de la vision et de l'interpretation des signaux visuels."
@@ -51,11 +51,11 @@
       "content": "The occipital lobe is primarily responsible for processing vision and interpreting visual signals."
     },
     "es": {
-      "intro": "Lóbulo Occipital",
-      "content": "El lóbulo occipital es principalmente responsable del procesamiento de la visión e interpretación de señales visuales."
+      "intro": "Lobulo Occipital",
+      "content": "El lobulo occipital es principalmente responsable del procesamiento de la vision e interpretacion de señales visuales."
     }
   },
-  "red": {
+  "brown": {
     "fr": {
       "intro": "Cervelet",
       "content": "Le cervelet joue un role cle dans la coordination des mouvements, l'equilibre et la precision des actions motrices."
@@ -66,7 +66,7 @@
     },
     "es": {
       "intro": "Cerebelo",
-      "content": "El cerebelo juega un papel clave en la coordinación de movimientos, el equilibrio y la precisión de las acciones motoras."
+      "content": "El cerebelo juega un papel clave en la coordinacion de movimientos, el equilibrio y la precision de las acciones motoras."
     }
   }
 }

@@ -6,6 +6,7 @@ import json_file from "../data/color_position.json" with {type: "json"};
 import {Interface} from "../interface.js";
 import brain_info from "../data/brain_lobes_info.json" with {type: "json"};
 import {Vector3} from "three";
+import sound_info from "../sounds/info.mp3";
 
 
 let infoPanel = null;
@@ -21,6 +22,7 @@ class move_camera_with_color {
         let data = JSON.parse(JSON.stringify(json_file));
         let vector;
         let trad;
+        const sound = new Audio(sound_info);
         switch (this.color.get_color()) {
             case "yellow":
                 vector = {x: data.yellow.x, y: data.yellow.y, z: data.yellow.z};
@@ -33,6 +35,7 @@ class move_camera_with_color {
             case "blue":
                 vector = {x: data.blue.x, y: data.blue.y, z: data.blue.z};
                 trad = brain_info.blue;
+
                 break;
             case "brown":
                 vector = {x: data.brown.x, y: data.brown.y, z: data.brown.z};
@@ -46,6 +49,9 @@ class move_camera_with_color {
                 console.error("Color not found");
                 return;
         }
+
+        sound.play();
+
         return new tween.Tween(this.camera.position)
             .to({x: vector.x, y: vector.y, z: vector.z})
             .easing(tween.Easing.Quadratic.Out)
@@ -54,7 +60,6 @@ class move_camera_with_color {
                 this.camera.lookAt(0, 0, 0);
             })
             .onComplete(() => {
-                //displayInfo(this.color, this.camera, this.scene);
                 console.log("camera moved", this.camera.position);
                 let cameraDirection = new Vector3();
                 this.camera.getWorldDirection(cameraDirection);
@@ -70,7 +75,7 @@ class move_camera_with_color {
                     y: this.camera.position.y + cameraDirection.y * distanceFromCamera - rightVector.y * leftOffset,
                     z: this.camera.position.z + cameraDirection.z * distanceFromCamera - rightVector.z * leftOffset
                 };
-                console.log(infoPanel);
+
                 if (infoPanel) {
                     console.log("remove info panel");
                     this.scene.remove(infoPanel.container);
