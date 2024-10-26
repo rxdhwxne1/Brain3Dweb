@@ -4,7 +4,6 @@ import {Color, Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "thre
 import FontJSON from "./assets/NotoSans-Italic-VariableFont_wdth,wght.json" with {type: "json"};
 import FontImage from "./assets/NotoSans-Italic-VariableFont_wdth,wght.png";
 
-
 export let button = []
 
 export class Interface {
@@ -17,7 +16,7 @@ export class Interface {
         this.translations = getTranslations;
         this.container = new ThreeMeshUI.Block({
             width: 0.81,
-            height: 1.33,
+            height: 1.3,
             ref: "container",
             padding: 0.025,
             fontFamily: FontJSON,
@@ -51,7 +50,6 @@ export class Interface {
         const contentContainer = new ThreeMeshUI.Block({
             height: 0.5,
             width: 0.8,
-            margin: 0.01,
             justifyContent: "center",
             alignContent: "center",
             backgroundOpacity: 1,
@@ -124,7 +122,7 @@ export class Interface {
         contentContainer.add(content);
         if (buttonContainer !== null) {
             contentContainer.add(new ThreeMeshUI.Block({
-                height: 0.9,
+                height: 0.6,
                 width: 0.8,
                 backgroundColor: new Color(0x000000),
                 backgroundOpacity: 1,

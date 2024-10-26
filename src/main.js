@@ -44,6 +44,7 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {button, Interface} from "./interface.js";
 import trad_intro from "./data/intro_interface.json" with {type: "json"};
+
 // Example of hard link to official repo for data, if needed
 // const MODEL_PATH = 'https://raw.githubusercontent.com/mrdoob/js/r148/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb';
 
@@ -220,8 +221,8 @@ const texture = textureLoader.load(
     }
 );
 
-let animation_camera = []
-
+export let animation_camera = []
+let interface_text;
 // Utilisation dans votre événement de clic
 function onDoubleClick(event) {
     mouse.set(
@@ -239,8 +240,14 @@ function onDoubleClick(event) {
         if (object.material.map) {
             const dominantColor = getColor(intersect, texture);
             console.log("camera position: ", camera.position);
-            let interface_text = new move_camera_with_color(dominantColor, camera, scene);
-            animation_camera.push(interface_text.move_to(), interface_text.move_with_position(camera.rotation));
+            interface_text = new move_camera_with_color(dominantColor, camera, scene);
+            try {
+                animation_camera.push(interface_text.move_to());
+            } catch (e) {
+                console.error("Error in animation");
+                return;
+            }
+
             console.log(`Couleur dominante à l'intersection : ${dominantColor}`);
         } else {
             console.error('L\'objet n\'a pas de texture');

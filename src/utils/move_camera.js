@@ -7,7 +7,7 @@ import {Interface} from "../interface.js";
 import brain_info from "../data/brain_lobes_info.json" with {type: "json"};
 import {Vector3} from "three";
 import sound_info from "../sounds/info.mp3";
-
+import {animation_camera} from "../main.js";
 
 let infoPanel = null;
 
@@ -53,7 +53,7 @@ class move_camera_with_color {
         sound.play();
 
         return new tween.Tween(this.camera.position)
-            .to({x: vector.x, y: vector.y, z: vector.z})
+            .to({x: vector.x, y: vector.y, z: vector.z}, 2000)
             .easing(tween.Easing.Quadratic.Out)
             .onUpdate(() => {
                 this.camera.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
@@ -83,6 +83,7 @@ class move_camera_with_color {
                 }
                 infoPanel = new Interface(interfacePosition, this.scene, JSON.parse(JSON.stringify(trad)));
                 infoPanel.container.lookAt(this.camera.position);
+                animation_camera.push(this.move_with_position(infoPanel.container.rotation));
 
 
             })
@@ -93,10 +94,11 @@ class move_camera_with_color {
     move_with_position(position) {
         return new tween.Tween(this.camera.rotation)
             .delay(1200)
-            .to({y: position.y}, 3000) // Rotate 360 degrees over 2 seconds
+            .to({y: position.y, x: position.x, z: position.z})
             .easing(tween.Easing.Quadratic.Out)
             .onUpdate(() => {
                 this.camera.rotation.set(this.camera.rotation.x, this.camera.rotation.y, this.camera.rotation.z);
+                //this.camera.lookAt(this.camera.position);
             })
             .onComplete(() => {
                 console.log("Rotation animation completed");
