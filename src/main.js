@@ -8,7 +8,6 @@ import {
     BoxGeometry,
     Clock,
     Line,
-    Mesh,
     MeshNormalMaterial,
     PerspectiveCamera,
     Raycaster,
@@ -88,7 +87,6 @@ controls.listenToKeyEvents(window); // optional
 
 const geometry = new BoxGeometry(1, 1, 1);
 const material = new MeshNormalMaterial();
-const cube = new Mesh(geometry, material);
 let sceneMeshes = []
 
 //scene.add(cube);
@@ -181,8 +179,6 @@ function onMouseMove(event) {
 }
 
 
-
-
 function getColor(intersect, texture, sampleSize = 5) {
     // Créer un tableau pour stocker les couleurs échantillonnées
     const uv = intersect.uv;
@@ -218,7 +214,7 @@ const texture = textureLoader.load(
     }
 );
 
-let animation_camera;
+let animation_camera = []
 
 // Utilisation dans votre événement de clic
 function onDoubleClick(event) {
@@ -237,8 +233,8 @@ function onDoubleClick(event) {
         if (object.material.map) {
             const dominantColor = getColor(intersect, texture);
             console.log("camera position: ", camera.position);
-            animation_camera = new move_camera_with_color(dominantColor, camera, scene).move_to();
-
+            let interface_text = new move_camera_with_color(dominantColor, camera, scene);
+            animation_camera.push(interface_text.move_to(), interface_text.move_with_position(camera.rotation));
             console.log(`Couleur dominante à l'intersection : ${dominantColor}`);
         } else {
             console.error('L\'objet n\'a pas de texture');
@@ -254,8 +250,8 @@ function onClick(event) {
     raycaster.setFromCamera(mouse, camera);
 }
 
-window.addEventListener('dblclick', onDoubleClick); 
-window.addEventListener('click', onClick); 
+window.addEventListener('dblclick', onDoubleClick);
+window.addEventListener('click', onClick);
 
 // Renderer color space setting
 renderer.outputEncoding = SRGBColorSpace;
@@ -360,16 +356,13 @@ const animation = () => {
         ThreeMeshUI.update();
     }
 
-
-    const delta = clock.getDelta();
     const elapsed = clock.getElapsedTime();
 
-    // can be used in shaders: uniforms.u_time.value = elapsed;
-
-
-    cube.rotation.x = elapsed / 2;
-    cube.rotation.y = elapsed / 1;
-    if (animation_camera) animation_camera.update();
+    if (animation_camera.length > 0) {
+        animation_camera.forEach((anim) => {
+            anim.update();
+        });
+    }
     updateButtons();
 
 

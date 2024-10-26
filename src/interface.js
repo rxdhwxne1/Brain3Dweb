@@ -289,6 +289,7 @@ export class Interface {
                         this.selectedLanguage = lang;
                         this.updateTextContent(titleText, contentText, buttonText);
                         dropdownButtonText.set({content: this.selectedLanguage.toUpperCase()});
+                        console.log("Selected language:", this.selectedLanguage);
                         this.dropdownVisible = false;
                         this.destroyDropdown(this.container, dropdownContainer);
                         console.log("Selected language:", this.selectedLanguage);
@@ -372,6 +373,7 @@ export class Interface {
     }
 
     updateTextContent(titleText, contentText, buttonText) {
+        console.log("Updating text content");
         titleText.set({content: this.translations[this.selectedLanguage].intro});
         contentText.set({content: this.translations[this.selectedLanguage].content});
         if (this.brain_loader)

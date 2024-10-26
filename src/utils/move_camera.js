@@ -59,13 +59,16 @@ class move_camera_with_color {
                 let cameraDirection = new Vector3();
                 this.camera.getWorldDirection(cameraDirection);
 
+                let rightVector = new Vector3();
+                rightVector.crossVectors(cameraDirection, new Vector3(0, 1, 0)).normalize();
 
-                let distanceFromCamera = 1;
+                let distanceFromCamera = 0.9;
+                let leftOffset = 0.5;
 
                 let interfacePosition = {
-                    x: this.camera.position.x + cameraDirection.x * distanceFromCamera,
-                    y: this.camera.position.y + cameraDirection.y * distanceFromCamera,
-                    z: this.camera.position.z + cameraDirection.z * distanceFromCamera
+                    x: this.camera.position.x + cameraDirection.x * distanceFromCamera - rightVector.x * leftOffset,
+                    y: this.camera.position.y + cameraDirection.y * distanceFromCamera - rightVector.y * leftOffset,
+                    z: this.camera.position.z + cameraDirection.z * distanceFromCamera - rightVector.z * leftOffset
                 };
                 console.log(infoPanel);
                 if (infoPanel) {
@@ -82,7 +85,19 @@ class move_camera_with_color {
 
     }
 
-
+    move_with_position(position) {
+        return new tween.Tween(this.camera.rotation)
+            .delay(1200)
+            .to({y: position.y}, 3000) // Rotate 360 degrees over 2 seconds
+            .easing(tween.Easing.Quadratic.Out)
+            .onUpdate(() => {
+                this.camera.rotation.set(this.camera.rotation.x, this.camera.rotation.y, this.camera.rotation.z);
+            })
+            .onComplete(() => {
+                console.log("Rotation animation completed");
+            })
+            .start();
+    }
 }
 
 export {move_camera_with_color};
