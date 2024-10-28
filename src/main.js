@@ -239,15 +239,17 @@ function onDoubleClick(event) {
 
         if (object.material.map) {
             const dominantColor = getColor(intersect, texture);
+            console.log("couleur dominante: ", dominantColor);
             console.log("camera position: ", camera.position);
             interface_text = new move_camera_with_color(dominantColor, camera, scene);
+            let move;
             try {
-                animation_camera.push(interface_text.move_to());
+                move = interface_text.move_to();
             } catch (e) {
                 console.error("Error in animation");
                 return;
             }
-
+            animation_camera.push(move);
             console.log(`Couleur dominante à l'intersection : ${dominantColor}`);
         } else {
             console.error('L\'objet n\'a pas de texture');
@@ -373,7 +375,11 @@ const animation = () => {
 
     if (animation_camera.length > 0) {
         animation_camera.forEach((anim) => {
-            anim.update();
+            try {
+                anim.update();
+            } catch (e) {
+                animation_camera = animation_camera.filter((a) => a !== anim);
+            }
         });
     }
     updateButtons();
