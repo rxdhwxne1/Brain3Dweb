@@ -123,7 +123,7 @@ document.body.appendChild(renderer.domElement)
 
 controls.enableDamping = true
 
-renderer.domElement.addEventListener('click', onDoubleClick, false)
+renderer.domElement.addEventListener('click', Click, false)
 
 renderer.domElement.addEventListener('mousemove', onMouseMove, false)
 
@@ -160,17 +160,12 @@ const line = new Line(geometry, material)
 function onMouseMove(event) {
     mouse.set((event.clientX / renderer.domElement.clientWidth) * 2 - 1, -(event.clientY / renderer.domElement.clientHeight) * 2 + 1)
 
-    // console.log(mouse)
 
     raycaster.setFromCamera(mouse, camera)
 
     const intersects = raycaster.intersectObjects(sceneMeshes, false)
 
     if (intersects.length > 0) {
-        //console.log(sceneMeshes.length + " " + intersects.length)
-        //console.log(intersects[0])
-        //console.log(intersects[0].object.userData.name + " " + intersects[0].distance + " ")
-        //console.log((intersects[0].face).normal)
         line.position.set(0, 0, 0)
         line.lookAt((intersects[0].face).normal)
         line.position.copy(intersects[0].point)
@@ -181,7 +176,6 @@ function onMouseMove(event) {
 
         arrowHelper.setDirection(n)
         arrowHelper.position.copy(intersects[0].point)
-        //console.log(n)
     }
 }
 
@@ -223,8 +217,9 @@ const texture = textureLoader.load(
 
 export let animation_camera = []
 let interface_text;
+
 // Utilisation dans votre événement de clic
-function onDoubleClick(event) {
+function Click(event) {
     mouse.set(
         (event.clientX / renderer.domElement.clientWidth) * 2 - 1,
         -(event.clientY / renderer.domElement.clientHeight) * 2 + 1
@@ -258,16 +253,6 @@ function onDoubleClick(event) {
     }
 }
 
-function onClick(event) {
-    mouse.set(
-        (event.clientX / renderer.domElement.clientWidth) * 2 - 1,
-        -(event.clientY / renderer.domElement.clientHeight) * 2 + 1
-    );
-    raycaster.setFromCamera(mouse, camera);
-}
-
-window.addEventListener('dblclick', onDoubleClick);
-window.addEventListener('click', onClick);
 
 // Renderer color space setting
 renderer.outputEncoding = SRGBColorSpace;

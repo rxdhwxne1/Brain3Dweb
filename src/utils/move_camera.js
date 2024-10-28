@@ -83,7 +83,14 @@ class move_camera_with_color {
                 }
                 infoPanel = new Interface(interfacePosition, this.scene, JSON.parse(JSON.stringify(trad)));
                 infoPanel.container.lookAt(this.camera.position);
-                animation_camera.push(this.move_with_position(infoPanel.container.rotation));
+                animation_camera.push(this.move_with_rotation(infoPanel.container.rotation));
+                this.camera.getWorldDirection(cameraDirection);
+                distanceFromCamera = -0.2;
+                animation_camera.push(this.move_with_position({
+                    x: this.camera.position.x + cameraDirection.x * distanceFromCamera,
+                    y: this.camera.position.y + cameraDirection.y * distanceFromCamera,
+                    z: this.camera.position.z + cameraDirection.z * distanceFromCamera
+                }));
 
 
             })
@@ -91,19 +98,35 @@ class move_camera_with_color {
 
     }
 
-    move_with_position(position) {
+    move_with_rotation(rotation) {
         return new tween.Tween(this.camera.rotation)
             .delay(900)
-            .to({y: position.y, x: position.x, z: position.z})
+            .to({y: rotation.y, x: rotation.x, z: rotation.z})
             .easing(tween.Easing.Quadratic.Out)
             .onUpdate(() => {
                 this.camera.rotation.set(this.camera.rotation.x, this.camera.rotation.y, this.camera.rotation.z);
-                //this.camera.lookAt(this.camera.position);
+                //this.camera.lookAt(this.camera.rotation);
             })
             .onComplete(() => {
                 console.log("Rotation animation completed");
             })
             .start();
+    }
+
+    move_with_position(position) {
+        return new tween.Tween(this.camera.position)
+            .delay(1200)
+            .to({x: position.x, y: position.y, z: position.z}, 2000)
+            .easing(tween.Easing.Quadratic.Out)
+            .onUpdate(() => {
+                this.camera.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
+                //this.camera.lookAt(0, 0, 0);
+            })
+            .onComplete(() => {
+                console.log("camera moved", this.camera.position);
+            })
+            .start();
+
     }
 }
 
