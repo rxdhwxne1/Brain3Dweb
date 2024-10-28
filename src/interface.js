@@ -6,14 +6,12 @@ import FontImage from "./assets/NotoSans-Italic-VariableFont_wdth,wght.png";
 
 export let button = []
 
-let save_language = 'fr';
-
 export class Interface {
     constructor(position, scene, getTranslations, brain_loader) {
         this.position = position;
         this.scene = scene;
         this.brain_loader = brain_loader; // only for intro interface
-        this.selectedLanguage = save_language;
+        this.selectedLanguage = 'fr';
         this.dropdownVisible = false;
         this.translations = getTranslations;
         this.container = new ThreeMeshUI.Block({
@@ -299,7 +297,6 @@ export class Interface {
                     state: 'selected',
                     onSet: () => {
                         this.selectedLanguage = lang;
-                        save_language = lang;
                         this.updateTextContent(titleText, contentText, buttonText);
                         dropdownButtonText.set({content: this.selectedLanguage.toUpperCase()});
                         console.log("Selected language:", this.selectedLanguage);
