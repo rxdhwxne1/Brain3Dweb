@@ -20504,8 +20504,8 @@ class LoadingManager {
       urlModifier = transform;
       return this;
     };
-    this.addHandler = function(regex, loader2) {
-      handlers.push(regex, loader2);
+    this.addHandler = function(regex, loader3) {
+      handlers.push(regex, loader3);
       return this;
     };
     this.removeHandler = function(regex) {
@@ -20518,10 +20518,10 @@ class LoadingManager {
     this.getHandler = function(file) {
       for (let i = 0, l = handlers.length; i < l; i += 2) {
         const regex = handlers[i];
-        const loader2 = handlers[i + 1];
+        const loader3 = handlers[i + 1];
         if (regex.global) regex.lastIndex = 0;
         if (regex.test(file)) {
-          return loader2;
+          return loader3;
         }
       }
       return null;
@@ -20663,9 +20663,9 @@ class FileLoader extends Loader {
         case "blob":
           return response.blob();
         case "document":
-          return response.text().then((text2) => {
+          return response.text().then((text) => {
             const parser = new DOMParser();
-            return parser.parseFromString(text2, mimeType);
+            return parser.parseFromString(text, mimeType);
           });
         case "json":
           return response.json();
@@ -20764,10 +20764,10 @@ class TextureLoader extends Loader {
   }
   load(url, onLoad, onProgress, onError) {
     const texture2 = new Texture();
-    const loader2 = new ImageLoader(this.manager);
-    loader2.setCrossOrigin(this.crossOrigin);
-    loader2.setPath(this.path);
-    loader2.load(url, function(image) {
+    const loader3 = new ImageLoader(this.manager);
+    loader3.setCrossOrigin(this.crossOrigin);
+    loader3.setPath(this.path);
+    loader3.load(url, function(image) {
       texture2.image = image;
       texture2.needsUpdate = true;
       if (onLoad !== void 0) {
@@ -23591,8 +23591,8 @@ function getFontOf(component) {
 function loadFontJSON(component, url) {
   if (requiredFontFamilies.indexOf(url) === -1) {
     requiredFontFamilies.push(url);
-    fileLoader.load(url, (text2) => {
-      const font = JSON.parse(text2);
+    fileLoader.load(url, (text) => {
+      const font = JSON.parse(text);
       _buildFriendlyKerningValues(font);
       fontFamilies[url] = font;
       for (const recordID of Object.keys(records)) {
@@ -27423,12 +27423,15 @@ class Interface {
     this.dropdownVisible = false;
     this.translations = getTranslations;
     this.container = new __webpack_exports__default.Block({
+      width: 0.81,
+      height: 1.3,
       ref: "container",
       padding: 0.025,
       fontFamily: FontJSON,
       fontTexture: FontImage,
       fontColor: new Color(16777215),
-      backgroundOpacity: 0
+      backgroundOpacity: 1,
+      backgroundColor: new Color(0)
     });
     this.createIntroPlane();
   }
@@ -27440,19 +27443,20 @@ class Interface {
     this.scene.add(this.container);
     const title = new __webpack_exports__default.Block({
       height: 0.2,
-      width: 1.5,
+      width: 0.8,
       margin: 0.01,
       justifyContent: "center",
-      fontSize: 0.09
+      fontSize: 0.09,
+      backgroundOpacity: 1,
+      backgroundColor: new Color(0)
     });
     this.container.add(title);
     const contentContainer = new __webpack_exports__default.Block({
       height: 0.5,
-      width: 0.7,
-      margin: 0.01,
+      width: 0.8,
       justifyContent: "center",
       alignContent: "center",
-      backgroundOpacity: 0.5,
+      backgroundOpacity: 1,
       flexDirection: "column"
     });
     const content = new __webpack_exports__default.Text({
@@ -27471,11 +27475,11 @@ class Interface {
         margin: 0.01,
         borderRadius: 0.075,
         backgroundOpacity: 0.8,
-        backgroundColor: new Color(13290186)
+        backgroundColor: new Color(0)
       });
       const selectedAttributes = {
         offset: 0.02,
-        backgroundColor: new Color(7829367),
+        bbackgroundColor: new Color(0),
         fontColor: new Color(2236962)
       };
       const hoveredStateAttributes = {
@@ -27512,10 +27516,16 @@ class Interface {
     }
     contentContainer.add(content);
     if (buttonContainer !== null) {
-      contentContainer.add(new __webpack_exports__default.Block({ height: 0.7 }));
+      contentContainer.add(new __webpack_exports__default.Block({
+        height: 0.6,
+        width: 0.8,
+        backgroundColor: new Color(0),
+        backgroundOpacity: 1
+      }));
       contentContainer.add(buttonContainer);
     }
     const top = new __webpack_exports__default.Block({
+      width: 0.8,
       justifyContent: "center",
       contentDirection: "row-reverse",
       fontFamily: FontJSON,
@@ -27555,8 +27565,8 @@ class Interface {
       fontColor: new Color(16777215)
       // White color for contrast
     });
-    const loader2 = new TextureLoader();
-    loader2.load(
+    const loader3 = new TextureLoader();
+    loader3.load(
       "./assets/sound_icon.png",
       (texture2) => {
         const emojiMaterial = new MeshBasicMaterial({ map: texture2 });
@@ -27611,14 +27621,14 @@ class Interface {
   }
   createLanguageDropdown(top, titleText, contentText, buttonText) {
     const dropdownButton = new __webpack_exports__default.Block({
-      width: 0.4,
+      width: 0.3,
       height: 0.15,
       justifyContent: "center",
       contentDirection: "row-reverse",
       margin: 0.05,
       borderRadius: 0.05,
       backgroundOpacity: 0.8,
-      backgroundColor: new Color(4473924)
+      backgroundColor: new Color(0)
     });
     const dropdownButtonText = new __webpack_exports__default.Text({
       content: this.selectedLanguage.toUpperCase(),
@@ -27628,12 +27638,13 @@ class Interface {
     top.add(dropdownButton);
     this.container.add(top);
     const dropdownContainer = new __webpack_exports__default.Block({
-      height: 0,
-      width: 0.4,
+      height: 0.1,
+      width: 0.1,
       justifyContent: "center",
       flexDirection: "column",
       contentDirection: "row-reverse",
-      backgroundOpacity: 0
+      backgroundOpacity: 0,
+      backgroundColor: new Color(0)
     });
     this.container.add(dropdownContainer);
     const populateDropdown = () => {
@@ -27642,7 +27653,7 @@ class Interface {
       languages = languages.filter((lang) => lang !== this.selectedLanguage);
       languages.forEach((lang) => {
         const langOption = new __webpack_exports__default.Block({
-          width: 0.4,
+          width: 0.3,
           height: 0.1,
           justifyContent: "center",
           margin: 0.05,
@@ -27661,6 +27672,7 @@ class Interface {
             this.selectedLanguage = lang;
             this.updateTextContent(titleText, contentText, buttonText);
             dropdownButtonText.set({ content: this.selectedLanguage.toUpperCase() });
+            console.log("Selected language:", this.selectedLanguage);
             this.dropdownVisible = false;
             this.destroyDropdown(this.container, dropdownContainer);
             console.log("Selected language:", this.selectedLanguage);
@@ -27736,49 +27748,91 @@ class Interface {
     dropdownContainer.set({ height: 0, backgroundOpacity: 0 });
   }
   updateTextContent(titleText, contentText, buttonText) {
+    console.log("Updating text content");
     titleText.set({ content: this.translations[this.selectedLanguage].intro });
     contentText.set({ content: this.translations[this.selectedLanguage].content });
     if (this.brain_loader)
       buttonText.set({ content: this.translations[this.selectedLanguage].button });
   }
 }
-const yellow = {
+const blue = {
   fr: {
     intro: "Lobe Frontal",
     content: "Le lobe frontal est responsable de fonctions executives telles que la prise de decision, le controle moteur volontaire et la regulation des emotions."
+  },
+  en: {
+    intro: "Frontal Lobe",
+    content: "The frontal lobe is responsible for executive functions such as decision making, voluntary motor control, and regulation of emotions."
+  },
+  es: {
+    intro: "Lobulo Frontal",
+    content: "El lobulo frontal es responsable de funciones ejecutivas como la toma de decisiones, el control motor voluntario y la regulacion de las emociones."
+  }
+};
+const yellow = {
+  fr: {
+    intro: "Lobe Parietal",
+    content: "Le lobe parietal traite les informations sensorielles, y compris la perception tactile, et joue un role dans l'orientation spatiale."
+  },
+  en: {
+    intro: "Parietal Lobe",
+    content: "The parietal lobe processes sensory information, including tactile perception, and plays a role in spatial orientation."
+  },
+  es: {
+    intro: "Lobulo Parietal",
+    content: "El lobulo parietal procesa informacion sensorial, incluida la percepcion táctil, y juega un papel en la orientacion espacial."
   }
 };
 const green = {
   fr: {
-    intro: "Lobe Parietal",
-    content: "Le lobe parietal traite les informations sensorielles, y compris la perception tactile, et joue un role dans l'orientation spatiale."
-  }
-};
-const blue = {
-  fr: {
     intro: "Lobe Temporal",
     content: "Le lobe temporal est essentiel pour le traitement de l'audition, de la memoire et de la comprehension du langage."
-  }
-};
-const brown = {
-  fr: {
-    intro: "Lobe Occipital",
-    content: "Le lobe occipital est principalement responsable du traitement de la vision et de l'interpretation des signaux visuels."
+  },
+  en: {
+    intro: "Temporal Lobe",
+    content: "The temporal lobe is essential for processing hearing, memory, and language comprehension."
+  },
+  es: {
+    intro: "Lobulo Temporal",
+    content: "El lobulo temporal es esencial para el procesamiento de la audicion, la memoria y la comprension del lenguaje."
   }
 };
 const red = {
   fr: {
+    intro: "Lobe Occipital",
+    content: "Le lobe occipital est principalement responsable du traitement de la vision et de l'interpretation des signaux visuels."
+  },
+  en: {
+    intro: "Occipital Lobe",
+    content: "The occipital lobe is primarily responsible for processing vision and interpreting visual signals."
+  },
+  es: {
+    intro: "Lobulo Occipital",
+    content: "El lobulo occipital es principalmente responsable del procesamiento de la vision e interpretacion de señales visuales."
+  }
+};
+const brown = {
+  fr: {
     intro: "Cervelet",
     content: "Le cervelet joue un role cle dans la coordination des mouvements, l'equilibre et la precision des actions motrices."
+  },
+  en: {
+    intro: "Cerebellum",
+    content: "The cerebellum plays a key role in coordinating movements, balance, and the precision of motor actions."
+  },
+  es: {
+    intro: "Cerebelo",
+    content: "El cerebelo juega un papel clave en la coordinacion de movimientos, el equilibrio y la precision de las acciones motoras."
   }
 };
 const brain_info = {
+  blue,
   yellow,
   green,
-  blue,
-  brown,
-  red
+  red,
+  brown
 };
+const sound_info = "" + new URL("info-Dyd9adO3.mp3", import.meta.url).href;
 let infoPanel = null;
 class move_camera_with_color {
   constructor(color_brain, camera2, scene2) {
@@ -27790,6 +27844,7 @@ class move_camera_with_color {
     let data = JSON.parse(JSON.stringify(json_file));
     let vector;
     let trad;
+    const sound = new Audio(sound_info);
     switch (this.color.get_color()) {
       case "yellow":
         vector = { x: data.yellow.x, y: data.yellow.y, z: data.yellow.z };
@@ -27815,20 +27870,23 @@ class move_camera_with_color {
         console.error("Color not found");
         return;
     }
-    return new Tween(this.camera.position).to({ x: vector.x, y: vector.y, z: vector.z }).easing(Easing.Quadratic.Out).onUpdate(() => {
+    sound.play();
+    return new Tween(this.camera.position).to({ x: vector.x, y: vector.y, z: vector.z }, 2e3).easing(Easing.Quadratic.Out).onUpdate(() => {
       this.camera.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
       this.camera.lookAt(0, 0, 0);
     }).onComplete(() => {
       console.log("camera moved", this.camera.position);
       let cameraDirection = new Vector3();
       this.camera.getWorldDirection(cameraDirection);
-      let distanceFromCamera = 1;
+      let rightVector = new Vector3();
+      rightVector.crossVectors(cameraDirection, new Vector3(0, 1, 0)).normalize();
+      let distanceFromCamera = 0.9;
+      let leftOffset = 0.5;
       let interfacePosition = {
-        x: this.camera.position.x + cameraDirection.x * distanceFromCamera,
-        y: this.camera.position.y + cameraDirection.y * distanceFromCamera,
-        z: this.camera.position.z + cameraDirection.z * distanceFromCamera
+        x: this.camera.position.x + cameraDirection.x * distanceFromCamera - rightVector.x * leftOffset,
+        y: this.camera.position.y + cameraDirection.y * distanceFromCamera - rightVector.y * leftOffset,
+        z: this.camera.position.z + cameraDirection.z * distanceFromCamera - rightVector.z * leftOffset
       };
-      console.log(infoPanel);
       if (infoPanel) {
         console.log("remove info panel");
         this.scene.remove(infoPanel.container);
@@ -27836,6 +27894,14 @@ class move_camera_with_color {
       }
       infoPanel = new Interface(interfacePosition, this.scene, JSON.parse(JSON.stringify(trad)));
       infoPanel.container.lookAt(this.camera.position);
+      animation_camera.push(this.move_with_position(infoPanel.container.rotation));
+    }).start();
+  }
+  move_with_position(position) {
+    return new Tween(this.camera.rotation).delay(1200).to({ y: position.y, x: position.x, z: position.z }).easing(Easing.Quadratic.Out).onUpdate(() => {
+      this.camera.rotation.set(this.camera.rotation.x, this.camera.rotation.y, this.camera.rotation.z);
+    }).onComplete(() => {
+      console.log("Rotation animation completed");
     }).start();
   }
 }
@@ -28757,12 +28823,12 @@ class GLTFLoader extends Loader {
       scope.manager.itemError(url);
       scope.manager.itemEnd(url);
     };
-    const loader2 = new FileLoader(this.manager);
-    loader2.setPath(this.path);
-    loader2.setResponseType("arraybuffer");
-    loader2.setRequestHeader(this.requestHeader);
-    loader2.setWithCredentials(this.withCredentials);
-    loader2.load(url, function(data) {
+    const loader3 = new FileLoader(this.manager);
+    loader3.setPath(this.path);
+    loader3.setResponseType("arraybuffer");
+    loader3.setRequestHeader(this.requestHeader);
+    loader3.setWithCredentials(this.withCredentials);
+    loader3.load(url, function(data) {
       try {
         scope.parse(data, resourcePath, function(gltf) {
           onLoad(gltf);
@@ -29361,15 +29427,15 @@ class GLTFTextureBasisUExtension {
       return null;
     }
     const extension = textureDef.extensions[this.name];
-    const loader2 = parser.options.ktx2Loader;
-    if (!loader2) {
+    const loader3 = parser.options.ktx2Loader;
+    if (!loader3) {
       if (json.extensionsRequired && json.extensionsRequired.indexOf(this.name) >= 0) {
         throw new Error("THREE.GLTFLoader: setKTX2Loader must be called before loading KTX2 textures");
       } else {
         return null;
       }
     }
-    return parser.loadTextureImage(textureIndex, extension.source, loader2);
+    return parser.loadTextureImage(textureIndex, extension.source, loader3);
   }
 }
 class GLTFTextureWebPExtension {
@@ -29388,13 +29454,13 @@ class GLTFTextureWebPExtension {
     }
     const extension = textureDef.extensions[name];
     const source = json.images[extension.source];
-    let loader2 = parser.textureLoader;
+    let loader3 = parser.textureLoader;
     if (source.uri) {
       const handler = parser.options.manager.getHandler(source.uri);
-      if (handler !== null) loader2 = handler;
+      if (handler !== null) loader3 = handler;
     }
     return this.detectSupport().then(function(isSupported) {
-      if (isSupported) return parser.loadTextureImage(textureIndex, extension.source, loader2);
+      if (isSupported) return parser.loadTextureImage(textureIndex, extension.source, loader3);
       if (json.extensionsRequired && json.extensionsRequired.indexOf(name) >= 0) {
         throw new Error("THREE.GLTFLoader: WebP required by asset but unsupported.");
       }
@@ -29430,13 +29496,13 @@ class GLTFTextureAVIFExtension {
     }
     const extension = textureDef.extensions[name];
     const source = json.images[extension.source];
-    let loader2 = parser.textureLoader;
+    let loader3 = parser.textureLoader;
     if (source.uri) {
       const handler = parser.options.manager.getHandler(source.uri);
-      if (handler !== null) loader2 = handler;
+      if (handler !== null) loader3 = handler;
     }
     return this.detectSupport().then(function(isSupported) {
-      if (isSupported) return parser.loadTextureImage(textureIndex, extension.source, loader2);
+      if (isSupported) return parser.loadTextureImage(textureIndex, extension.source, loader3);
       if (json.extensionsRequired && json.extensionsRequired.indexOf(name) >= 0) {
         throw new Error("THREE.GLTFLoader: AVIF required by asset but unsupported.");
       }
@@ -30211,7 +30277,7 @@ class GLTFParser {
    */
   loadBuffer(bufferIndex) {
     const bufferDef = this.json.buffers[bufferIndex];
-    const loader2 = this.fileLoader;
+    const loader3 = this.fileLoader;
     if (bufferDef.type && bufferDef.type !== "arraybuffer") {
       throw new Error("THREE.GLTFLoader: " + bufferDef.type + " buffer type is not supported.");
     }
@@ -30220,7 +30286,7 @@ class GLTFParser {
     }
     const options = this.options;
     return new Promise(function(resolve, reject) {
-      loader2.load(LoaderUtils.resolveURL(bufferDef.uri, options.path), resolve, void 0, function() {
+      loader3.load(LoaderUtils.resolveURL(bufferDef.uri, options.path), resolve, void 0, function() {
         reject(new Error('THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".'));
       });
     });
@@ -30327,14 +30393,14 @@ class GLTFParser {
     const textureDef = json.textures[textureIndex];
     const sourceIndex = textureDef.source;
     const sourceDef = json.images[sourceIndex];
-    let loader2 = this.textureLoader;
+    let loader3 = this.textureLoader;
     if (sourceDef.uri) {
       const handler = options.manager.getHandler(sourceDef.uri);
-      if (handler !== null) loader2 = handler;
+      if (handler !== null) loader3 = handler;
     }
-    return this.loadTextureImage(textureIndex, sourceIndex, loader2);
+    return this.loadTextureImage(textureIndex, sourceIndex, loader3);
   }
-  loadTextureImage(textureIndex, sourceIndex, loader2) {
+  loadTextureImage(textureIndex, sourceIndex, loader3) {
     const parser = this;
     const json = this.json;
     const textureDef = json.textures[textureIndex];
@@ -30343,7 +30409,7 @@ class GLTFParser {
     if (this.textureCache[cacheKey]) {
       return this.textureCache[cacheKey];
     }
-    const promise = this.loadImageSource(sourceIndex, loader2).then(function(texture2) {
+    const promise = this.loadImageSource(sourceIndex, loader3).then(function(texture2) {
       texture2.flipY = false;
       texture2.name = textureDef.name || sourceDef.name || "";
       if (texture2.name === "" && typeof sourceDef.uri === "string" && sourceDef.uri.startsWith("data:image/") === false) {
@@ -30363,7 +30429,7 @@ class GLTFParser {
     this.textureCache[cacheKey] = promise;
     return promise;
   }
-  loadImageSource(sourceIndex, loader2) {
+  loadImageSource(sourceIndex, loader3) {
     const parser = this;
     const json = this.json;
     const options = this.options;
@@ -30387,14 +30453,14 @@ class GLTFParser {
     const promise = Promise.resolve(sourceURI).then(function(sourceURI2) {
       return new Promise(function(resolve, reject) {
         let onLoad = resolve;
-        if (loader2.isImageBitmapLoader === true) {
+        if (loader3.isImageBitmapLoader === true) {
           onLoad = function(imageBitmap) {
             const texture2 = new Texture(imageBitmap);
             texture2.needsUpdate = true;
             resolve(texture2);
           };
         }
-        loader2.load(LoaderUtils.resolveURL(sourceURI2, options.path), onLoad, void 0, reject);
+        loader3.load(LoaderUtils.resolveURL(sourceURI2, options.path), onLoad, void 0, reject);
       });
     }).then(function(texture2) {
       if (isObjectURL === true) {
@@ -31205,24 +31271,30 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.listenToKeyEvents(window);
 const geometry = new BoxGeometry(1, 1, 1);
 const material = new MeshNormalMaterial();
-const cube = new Mesh(geometry, material);
 let sceneMeshes = [];
+const loader2 = new TextureLoader();
+loader2.load("assets/ml-reseau-neurones.png", (texture2) => {
+  scene.background = texture2;
+});
 const loader = new GLTFLoader();
 function brain_loader() {
-  loader.load("assets/models/brain_project.glb", function(gltf) {
-    gltf.scene.traverse(
-      function(child) {
-        sceneMeshes.push(child);
-        scene.add(gltf.scene);
-      },
-      function(xhr) {
-        console.log(xhr.loaded / xhr.total * 100 + "% loaded");
-      },
-      function(error) {
-        console.log("An error happened");
-      }
-    );
-  });
+  loader.load(
+    "assets/models/brain_project.glb",
+    function(gltf) {
+      gltf.scene.traverse(function(child) {
+        if (child.isMesh) {
+          sceneMeshes.push(child);
+        }
+      });
+      scene.add(gltf.scene);
+    },
+    function(xhr) {
+      console.log(xhr.loaded / xhr.total * 100 + "% loaded");
+    },
+    function(error) {
+      console.error("An error happened", error);
+    }
+  );
 }
 renderer.useLegacyLights = false;
 renderer.shadowMap.enabled = false;
@@ -31266,7 +31338,6 @@ function onMouseMove(event) {
     n.transformDirection(intersects[0].object.matrixWorld);
     arrowHelper.setDirection(n);
     arrowHelper.position.copy(intersects[0].point);
-    console.log(n);
   }
 }
 function getColor(intersect2, texture2, sampleSize = 5) {
@@ -31295,7 +31366,8 @@ const texture = textureLoader.load(
     console.error("Error loading texture:", error);
   }
 );
-let animation_camera;
+let animation_camera = [];
+let interface_text;
 function onDoubleClick(event) {
   mouse.set(
     event.clientX / renderer.domElement.clientWidth * 2 - 1,
@@ -31309,7 +31381,13 @@ function onDoubleClick(event) {
     if (object.material.map) {
       const dominantColor = getColor(intersect2, texture);
       console.log("camera position: ", camera.position);
-      animation_camera = new move_camera_with_color(dominantColor, camera, scene).move_to();
+      interface_text = new move_camera_with_color(dominantColor, camera, scene);
+      try {
+        animation_camera.push(interface_text.move_to());
+      } catch (e) {
+        console.error("Error in animation");
+        return;
+      }
       console.log(`Couleur dominante à l'intersection : ${dominantColor}`);
     } else {
       console.error("L'objet n'a pas de texture");
@@ -31322,13 +31400,6 @@ function onClick(event) {
     -(event.clientY / renderer.domElement.clientHeight) * 2 + 1
   );
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(scene.children, true);
-  const textExists = intersects.some((intersect2) => intersect2.object === text);
-  if (text && !textExists) {
-    scene.remove(text);
-    text = null;
-    console.log("Texte supprimé");
-  }
 }
 window.addEventListener("dblclick", onDoubleClick);
 window.addEventListener("click", onClick);
@@ -31387,11 +31458,12 @@ const animation = () => {
   } catch (e) {
     __webpack_exports__default.update();
   }
-  clock.getDelta();
-  const elapsed = clock.getElapsedTime();
-  cube.rotation.x = elapsed / 2;
-  cube.rotation.y = elapsed / 1;
-  if (animation_camera) animation_camera.update();
+  clock.getElapsedTime();
+  if (animation_camera.length > 0) {
+    animation_camera.forEach((anim) => {
+      anim.update();
+    });
+  }
   updateButtons();
   renderer.render(scene, camera);
 };
@@ -31402,4 +31474,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-1aP9VwL1.js.map
+//# sourceMappingURL=index-xlIbEayE.js.map
