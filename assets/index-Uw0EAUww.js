@@ -27868,7 +27868,7 @@ class move_camera_with_color {
         break;
       default:
         console.error("Color not found");
-        return;
+        return new Error("Color not found");
     }
     sound.play();
     return new Tween(this.camera.position).to({ x: vector.x, y: vector.y, z: vector.z }, 2e3).easing(Easing.Quadratic.Out).onUpdate(() => {
@@ -31474,4 +31474,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-xlIbEayE.js.map
+//# sourceMappingURL=index-Uw0EAUww.js.map
