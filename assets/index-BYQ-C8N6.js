@@ -30225,6 +30225,7 @@ class Interface {
       console.error("Speech synthesis not supported by your browser.");
       return;
     }
+    console.log("Activating TTS", this.selectedLanguage);
     const textToSpeak = this.translations[this.selectedLanguage].content;
     const speech = new SpeechSynthesisUtterance(textToSpeak);
     speech.lang = this.selectedLanguage === "fr" ? "fr-FR" : this.selectedLanguage === "en" ? "en-US" : "es-ES";
@@ -30494,7 +30495,7 @@ class move_camera_with_color {
       let rightVector = new Vector3();
       rightVector.crossVectors(cameraDirection, new Vector3(0, 1, 0)).normalize();
       let distanceFromCamera = 0.9;
-      let leftOffset = 0.5;
+      let leftOffset = 0.7;
       let interfacePosition = {
         x: this.camera.position.x + cameraDirection.x * distanceFromCamera - rightVector.x * leftOffset,
         y: this.camera.position.y + cameraDirection.y * distanceFromCamera - rightVector.y * leftOffset,
@@ -34095,4 +34096,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-Cxgcrwsg.js.map
+//# sourceMappingURL=index-BYQ-C8N6.js.map
