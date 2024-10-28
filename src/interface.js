@@ -229,6 +229,7 @@ export class Interface {
             console.error("Speech synthesis not supported by your browser.");
             return;
         }
+        console.log("Activating TTS", this.selectedLanguage);
         const textToSpeak = this.translations[this.selectedLanguage].content;
         const speech = new SpeechSynthesisUtterance(textToSpeak);
         speech.lang = this.selectedLanguage === 'fr' ? 'fr-FR' : this.selectedLanguage === 'en' ? 'en-US' : 'es-ES';

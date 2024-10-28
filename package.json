@@ -11,7 +11,7 @@
     "clean": "rm -rf dist",
     "purge": "npm run clean && rm -rf node_modules",
     "serve": "http-server dist",
-    "deploy": "vite build && gh-pages -d dist",
+    "deploy": "rm -rf dist && vite build && gh-pages -d dist",
     "cloud": "cloudflared --url http://localhost:5173/"
   },
   "devDependencies": {

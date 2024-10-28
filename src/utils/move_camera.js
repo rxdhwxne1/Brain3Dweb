@@ -68,7 +68,7 @@ class move_camera_with_color {
                 rightVector.crossVectors(cameraDirection, new Vector3(0, 1, 0)).normalize();
 
                 let distanceFromCamera = 0.9;
-                let leftOffset = 0.5;
+                let leftOffset = 0.7;
 
                 let interfacePosition = {
                     x: this.camera.position.x + cameraDirection.x * distanceFromCamera - rightVector.x * leftOffset,
