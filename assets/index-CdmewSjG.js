@@ -30023,12 +30023,13 @@ const FontJSON = {
 };
 const FontImage = "" + new URL("NotoSans-Italic-VariableFontwdthwght-D-ldLlYQ.png", import.meta.url).href;
 let button = [];
+let save_language = "fr";
 class Interface {
   constructor(position, scene2, getTranslations, brain_loader2) {
     this.position = position;
     this.scene = scene2;
     this.brain_loader = brain_loader2;
-    this.selectedLanguage = "fr";
+    this.selectedLanguage = save_language;
     this.dropdownVisible = false;
     this.translations = getTranslations;
     this.container = new __webpack_exports__default.Block({
@@ -30278,6 +30279,7 @@ class Interface {
           state: "selected",
           onSet: () => {
             this.selectedLanguage = lang;
+            save_language = lang;
             this.updateTextContent(titleText, contentText, buttonText);
             dropdownButtonText.set({ content: this.selectedLanguage.toUpperCase() });
             console.log("Selected language:", this.selectedLanguage);
@@ -34090,4 +34092,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-CAxmwoq4.js.map
+//# sourceMappingURL=index-CdmewSjG.js.map
