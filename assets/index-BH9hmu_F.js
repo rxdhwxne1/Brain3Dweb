@@ -27808,7 +27808,7 @@ const red = {
   },
   es: {
     intro: "Lobulo Occipital",
-    content: "El lobulo occipital es principalmente responsable del procesamiento de la vision e interpretacion de señales visuales."
+    content: "El lobulo occipital es principalmente responsable del procesamiento de la vision e interpretacion de senales visuales."
   }
 };
 const brown = {
@@ -31482,4 +31482,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-CD7Yglim.js.map
+//# sourceMappingURL=index-BH9hmu_F.js.map
