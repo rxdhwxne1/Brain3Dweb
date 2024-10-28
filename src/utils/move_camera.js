@@ -47,7 +47,7 @@ class move_camera_with_color {
                 break;
             default:
                 console.error("Color not found");
-                return;
+                return new Error("Color not found");
         }
 
         sound.play();
