@@ -1,8 +1,8 @@
 "use strict";
 import ThreeMeshUI from "three-mesh-ui";
 import {Color, Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
-import FontJSON from "./assets/NotoSans-Italic-VariableFont_wdth,wght.json" with {type: "json"};
-import FontImage from "./assets/NotoSans-Italic-VariableFont_wdth,wght.png";
+import FontJSON from "./assets/NotoSans-Italic-VariableFont_wdth,wght-msdf.json" with {type: "json"};
+import FontImage from "./assets/NotoSans-Italic-VariableFontwdthwght.png";
 
 export let button = []
 
@@ -44,7 +44,10 @@ export class Interface {
             backgroundOpacity: 1,
             backgroundColor: new Color(0x000000)
         });
-
+        const title_text = new ThreeMeshUI.Text({
+            content: this.translations[this.selectedLanguage].intro,
+        })
+        title.add(title_text);
         this.container.add(title);
 
         const contentContainer = new ThreeMeshUI.Block({
@@ -141,14 +144,9 @@ export class Interface {
         });
         const ttsButton = this.createTTSButton()
         top.add(ttsButton);
-        this.createLanguageDropdown(top, title, content, buttonText);
+        this.createLanguageDropdown(top, title_text, content, buttonText);
         this.container.add(contentContainer);
 
-        title.add(
-            new ThreeMeshUI.Text({
-                content: this.translations[this.selectedLanguage].intro,
-            })
-        );
         if (buttonContainer !== null) {
             button.push(buttonContainer);
         }
