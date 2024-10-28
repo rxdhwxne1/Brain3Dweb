@@ -21837,7 +21837,7 @@ class color {
       return "green";
     } else if (this.r === 52 && this.g === 166 && this.b === 158) {
       return "blue";
-    } else if (this.r === 117 && this.g === 48 && this.b === 19) {
+    } else if (this.r === 117 && this.g === 48 && this.b === 19 || this.r === 117 && this.g === 47 && this.b === 21) {
       return "brown";
     } else if (this.r === 224 && this.g === 221 && this.b === 64) {
       return "yellow";
@@ -27898,7 +27898,7 @@ class move_camera_with_color {
     }).start();
   }
   move_with_position(position) {
-    return new Tween(this.camera.rotation).delay(1200).to({ y: position.y, x: position.x, z: position.z }).easing(Easing.Quadratic.Out).onUpdate(() => {
+    return new Tween(this.camera.rotation).delay(900).to({ y: position.y, x: position.x, z: position.z }).easing(Easing.Quadratic.Out).onUpdate(() => {
       this.camera.rotation.set(this.camera.rotation.x, this.camera.rotation.y, this.camera.rotation.z);
     }).onComplete(() => {
       console.log("Rotation animation completed");
@@ -31380,14 +31380,17 @@ function onDoubleClick(event) {
     const object = intersect2.object;
     if (object.material.map) {
       const dominantColor = getColor(intersect2, texture);
+      console.log("couleur dominante: ", dominantColor);
       console.log("camera position: ", camera.position);
       interface_text = new move_camera_with_color(dominantColor, camera, scene);
+      let move;
       try {
-        animation_camera.push(interface_text.move_to());
+        move = interface_text.move_to();
       } catch (e) {
         console.error("Error in animation");
         return;
       }
+      animation_camera.push(move);
       console.log(`Couleur dominante à l'intersection : ${dominantColor}`);
     } else {
       console.error("L'objet n'a pas de texture");
@@ -31461,7 +31464,11 @@ const animation = () => {
   clock.getElapsedTime();
   if (animation_camera.length > 0) {
     animation_camera.forEach((anim) => {
-      anim.update();
+      try {
+        anim.update();
+      } catch (e) {
+        animation_camera = animation_camera.filter((a) => a !== anim);
+      }
     });
   }
   updateButtons();
@@ -31474,4 +31481,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-Uw0EAUww.js.map
+//# sourceMappingURL=index-3Uk1rbVg.js.map
