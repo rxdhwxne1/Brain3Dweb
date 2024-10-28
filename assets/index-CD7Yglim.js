@@ -31379,6 +31379,7 @@ function onDoubleClick(event) {
     const intersect2 = intersects[0];
     const object = intersect2.object;
     if (object.material.map) {
+      animation_camera = [];
       const dominantColor = getColor(intersect2, texture);
       console.log("couleur dominante: ", dominantColor);
       console.log("camera position: ", camera.position);
@@ -31481,4 +31482,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-3Uk1rbVg.js.map
+//# sourceMappingURL=index-CD7Yglim.js.map
