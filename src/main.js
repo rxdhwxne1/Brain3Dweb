@@ -238,6 +238,7 @@ function onDoubleClick(event) {
         const object = intersect.object;
 
         if (object.material.map) {
+            animation_camera = [];
             const dominantColor = getColor(intersect, texture);
             console.log("couleur dominante: ", dominantColor);
             console.log("camera position: ", camera.position);
