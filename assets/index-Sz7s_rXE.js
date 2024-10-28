@@ -30508,14 +30508,28 @@ class move_camera_with_color {
       }
       infoPanel = new Interface(interfacePosition, this.scene, JSON.parse(JSON.stringify(trad)));
       infoPanel.container.lookAt(this.camera.position);
-      animation_camera.push(this.move_with_position(infoPanel.container.rotation));
+      animation_camera.push(this.move_with_rotation(infoPanel.container.rotation));
+      this.camera.getWorldDirection(cameraDirection);
+      distanceFromCamera = -0.2;
+      animation_camera.push(this.move_with_position({
+        x: this.camera.position.x + cameraDirection.x * distanceFromCamera,
+        y: this.camera.position.y + cameraDirection.y * distanceFromCamera,
+        z: this.camera.position.z + cameraDirection.z * distanceFromCamera
+      }));
     }).start();
   }
-  move_with_position(position) {
-    return new Tween(this.camera.rotation).delay(900).to({ y: position.y, x: position.x, z: position.z }).easing(Easing.Quadratic.Out).onUpdate(() => {
+  move_with_rotation(rotation) {
+    return new Tween(this.camera.rotation).delay(900).to({ y: rotation.y, x: rotation.x, z: rotation.z }).easing(Easing.Quadratic.Out).onUpdate(() => {
       this.camera.rotation.set(this.camera.rotation.x, this.camera.rotation.y, this.camera.rotation.z);
     }).onComplete(() => {
       console.log("Rotation animation completed");
+    }).start();
+  }
+  move_with_position(position) {
+    return new Tween(this.camera.position).delay(1200).to({ x: position.x, y: position.y, z: position.z }, 2e3).easing(Easing.Quadratic.Out).onUpdate(() => {
+      this.camera.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
+    }).onComplete(() => {
+      console.log("camera moved", this.camera.position);
     }).start();
   }
 }
@@ -33915,7 +33929,7 @@ renderer.shadowMap.enabled = false;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 controls.enableDamping = true;
-renderer.domElement.addEventListener("click", onDoubleClick, false);
+renderer.domElement.addEventListener("click", Click, false);
 renderer.domElement.addEventListener("mousemove", onMouseMove, false);
 renderer.domElement.addEventListener("mousedown", () => {
   let intersect2;
@@ -33982,7 +33996,7 @@ const texture = textureLoader.load(
 );
 let animation_camera = [];
 let interface_text;
-function onDoubleClick(event) {
+function Click(event) {
   mouse.set(
     event.clientX / renderer.domElement.clientWidth * 2 - 1,
     -(event.clientY / renderer.domElement.clientHeight) * 2 + 1
@@ -34012,15 +34026,6 @@ function onDoubleClick(event) {
     }
   }
 }
-function onClick(event) {
-  mouse.set(
-    event.clientX / renderer.domElement.clientWidth * 2 - 1,
-    -(event.clientY / renderer.domElement.clientHeight) * 2 + 1
-  );
-  raycaster.setFromCamera(mouse, camera);
-}
-window.addEventListener("dblclick", onDoubleClick);
-window.addEventListener("click", onClick);
 renderer.outputEncoding = SRGBColorSpace;
 new Interface({
   x: camera.position.x,
@@ -34096,4 +34101,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-BYQ-C8N6.js.map
+//# sourceMappingURL=index-Sz7s_rXE.js.map
