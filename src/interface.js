@@ -126,7 +126,7 @@ export class Interface {
         contentContainer.add(content);
         if (buttonContainer !== null) {
             contentContainer.add(new ThreeMeshUI.Block({
-                height: 0.6,
+                height: 0.65,
                 width: 0.8,
                 backgroundColor: new Color(0x000000),
                 backgroundOpacity: 1,
