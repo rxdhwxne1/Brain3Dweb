@@ -31025,7 +31025,7 @@ class Interface {
     contentContainer.add(content);
     if (buttonContainer !== null) {
       contentContainer.add(new __webpack_exports__default.Block({
-        height: 0.65,
+        height: 0.7,
         width: 0.8,
         backgroundColor: new Color(0),
         backgroundOpacity: 1
@@ -35069,4 +35069,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-CLeE6nVj.js.map
+//# sourceMappingURL=index-_1Zi_cMC.js.map
