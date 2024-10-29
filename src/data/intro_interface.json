@@ -1,17 +1,17 @@
 {
   "en": {
     "intro": "Introduction",
-    "content": "Click on start to display the brain and then you can click on the brain area to know more",
+    "content": "Click on start to display the brain and then you can click on the brain area to know more but before that, a small animation will launch",
     "button": "Start"
   },
   "fr": {
     "intro": "Introduction",
-    "content": "Cliquez sur Commencer pour afficher le cerveau, et ensuite vous pouvez cliquer sur les zones du cerveau pour en savoir plus",
+    "content": "Cliquez sur Commencer pour afficher le cerveau, et ensuite vous pouvez cliquer sur les zones du cerveau pour en savoir plus, mais avant cela, une petite animation va se lancer",
     "button": "Commencer"
   },
   "es": {
     "intro": "Introducción",
-    "content": "Haz clic en comenzar para mostrar el cerebro y luego puedes hacer clic en la zona del cerebro para obtener más información",
+    "content": "Haz clic en comenzar para mostrar el cerebro y luego puedes hacer clic en la zona del cerebro para obtener más información pero antes de eso, se lanzará una pequeña animación",
     "button": "Comenzar"
   }
 }
