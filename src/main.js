@@ -4,10 +4,13 @@
 // see https://developer.mozilla.org/en-US/docs/Glossary/Tree_shaking)
 
 import {
+    AnimationMixer,
     ArrowHelper,
     BoxGeometry,
     Clock,
+    HemisphereLight,
     Line,
+    LoopOnce,
     MeshNormalMaterial,
     PerspectiveCamera,
     Raycaster,
@@ -44,6 +47,11 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {button, Interface} from "./interface.js";
 import trad_intro from "./data/intro_interface.json" with {type: "json"};
+import Death from "./sounds/Death.mp3";
+import sound_info from "./sounds/info.mp3";
+import Damage from "./sounds/Damage.mp3";
+import Chute from "./sounds/Chute.mp3";
+import Dead_body_hitting from "./sounds/Dead_body_hitting.mp3";
 
 // Example of hard link to official repo for data, if needed
 // const MODEL_PATH = 'https://raw.githubusercontent.com/mrdoob/js/r148/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb';
@@ -75,6 +83,10 @@ rectLight4.position.set(-5, 0, 0); // À gauche de l'objet
 rectLight4.lookAt(0, 0, 0);
 scene.add(rectLight4);
 
+const rectLight5 = new HemisphereLight(0xffffbb, 0x080820, 3);
+scene.add(rectLight5);
+
+
 const raycaster = new Raycaster();
 const mouse = new Vector2();
 
@@ -97,23 +109,115 @@ loader2.load('assets/ml-reseau-neurones.png', (texture) => {
 const loader = new GLTFLoader();
 
 function brain_loader() {
-    loader.load('assets/models/brain_project.glb',
-        function (gltf) {
+    esteban_loader().then(() => {
+
+        loader.load('assets/models/brain_project.glb', function (gltf) {
             gltf.scene.traverse(function (child) {
                 if (child.isMesh) {
                     sceneMeshes.push(child);
                 }
             });
             scene.add(gltf.scene);
-        },
-        function (xhr) {
+            const sound = new Audio(sound_info);
+            animation_camera.push(new move_camera_with_color(new color(0, 0, 0), camera, scene).move_with_position({
+                x: 0,
+                y: 0,
+                z: 3
+            }, 0));
+            sound.volume = 0.1;
+            sound.play();
+
+        }, function (xhr) {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-        },
-        function (error) {
+        }, function (error) {
             console.error('An error happened', error);
-        }
-    );
+        });
+    });
+
+
 }
+
+let mixer_1;
+let mixer_2
+
+function esteban_loader() {
+    return new Promise((resolve, reject) => {
+        loader.load('assets/models/animation_dying_5.glb', function (gltf) {
+            animation_camera.push(new move_camera_with_color(new color(0, 0, 0), camera, scene).move_with_position({
+                x: 0,
+                y: 10,
+                z: 15
+            }, 0));
+            const sound = new Audio(Death);
+            sound.play();
+            const model = gltf.scene;
+            const animations = gltf.animations;
+            mixer_1 = new AnimationMixer(model);
+            mixer_2 = new AnimationMixer(model);
+            const sound2 = new Audio(Chute);
+            const sound3 = new Audio(Dead_body_hitting);
+            mixer_1.addEventListener('finished', () => {
+                    sound2.pause();
+                    scene.remove(model);
+                    return resolve();
+                }
+            );
+            // wait 1 second before playing the animation
+            const action = mixer_1.clipAction(animations[0]);
+            let soundPlayed = false;
+
+            // Start checking if the animation has started
+            const checkAnimationStart = setInterval(() => {
+                console.log(action.time);
+                if (!soundPlayed && action.time > 2.3) {
+                    sound2.play();
+                    soundPlayed = true;
+                } else if (soundPlayed && action.time > 3.3) {
+                    const sound = new Audio(Damage);
+                    sound.play();
+                    clearInterval(checkAnimationStart);
+                }
+            }, 10);
+            action.play();
+
+            const action2 = mixer_2.clipAction(animations[1]);
+            setTimeout(() => action2.play(), 900);
+
+            let soundPlayed2 = false;
+
+            const checkAnimationStart2 = setInterval(() => {
+                console.log(action2.time);
+                if (!soundPlayed2 && action2.time > 0.5) {
+                    sound3.play();
+                    soundPlayed2 = true;
+                    clearInterval(checkAnimationStart2);
+                }
+            }, 10);
+
+
+            // Add event listener for the end of the animation
+            action.clampWhenFinished = true;
+            action.loop = LoopOnce;
+            // raletir l'animation
+            action.timeScale = 1;
+
+            action2.clampWhenFinished = true;
+            action2.loop = LoopOnce
+            action2.timeScale = 1.5;
+
+
+            scene.add(model);
+
+
+        }, function (xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        }, function (error) {
+            console.error('An error happened', error);
+        });
+
+    });
+}
+
 
 //renderer.physicallyCorrectLights = true //deprecated
 renderer.useLegacyLights = false //use this instead of setting physicallyCorrectLights=true property
@@ -149,11 +253,7 @@ renderer.domElement.addEventListener('mouseup', () => {
 });
 
 
-const arrowHelper = new ArrowHelper(
-    new Vector3(),
-    new Vector3(),
-    .25,
-    0xffff00)
+const arrowHelper = new ArrowHelper(new Vector3(), new Vector3(), .25, 0xffff00)
 scene.add(arrowHelper)
 const line = new Line(geometry, material)
 
@@ -204,26 +304,19 @@ function getColor(intersect, texture, sampleSize = 5) {
 }
 
 const textureLoader = new TextureLoader();
-const texture = textureLoader.load(
-    'assets/Brain_Texture.jpeg',
-    () => {
+const texture = textureLoader.load('assets/Brain_Texture.jpeg', () => {
         console.log('Texture loaded successfully:', texture);
-    },
-    undefined,  // Optional: onProgress function (can be left as undefined)
+    }, undefined,  // Optional: onProgress function (can be left as undefined)
     (error) => {
         console.error('Error loading texture:', error); // Log any loading error
-    }
-);
+    });
 
 export let animation_camera = []
 let interface_text;
 
 // Utilisation dans votre événement de clic
 function Click(event) {
-    mouse.set(
-        (event.clientX / renderer.domElement.clientWidth) * 2 - 1,
-        -(event.clientY / renderer.domElement.clientHeight) * 2 + 1
-    );
+    mouse.set((event.clientX / renderer.domElement.clientWidth) * 2 - 1, -(event.clientY / renderer.domElement.clientHeight) * 2 + 1);
     raycaster.setFromCamera(mouse, camera);
 
     const intersects = raycaster.intersectObjects(sceneMeshes, false);
@@ -259,9 +352,7 @@ renderer.outputEncoding = SRGBColorSpace;
 
 
 new Interface({
-    x: camera.position.x,
-    y: camera.position.y,
-    z: camera.position.z + 1.6
+    x: camera.position.x, y: camera.position.y, z: camera.position.z + 1.6
 }, scene, JSON.parse(JSON.stringify(trad_intro)), brain_loader);
 
 
@@ -346,7 +437,7 @@ function raycast() {
     }, null);
 }
 
-
+let lastElapsedTime = 0
 // Main loop
 const animation = () => {
 
@@ -357,7 +448,9 @@ const animation = () => {
         ThreeMeshUI.update();
     }
 
-    const elapsed = clock.getElapsedTime();
+    const elapsedTime = clock.getElapsedTime()
+    const deltaTime = elapsedTime - lastElapsedTime
+    lastElapsedTime = elapsedTime
 
     if (animation_camera.length > 0) {
         animation_camera.forEach((anim) => {
@@ -370,6 +463,12 @@ const animation = () => {
     }
     updateButtons();
 
+    if (mixer_1) {
+        mixer_1.update(deltaTime)
+    }
+    if (mixer_2) {
+        mixer_2.update(deltaTime)
+    }
 
     renderer.render(scene, camera);
 };

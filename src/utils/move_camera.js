@@ -113,9 +113,9 @@ class move_camera_with_color {
             .start();
     }
 
-    move_with_position(position) {
+    move_with_position(position, delay = 1200) {
         return new tween.Tween(this.camera.position)
-            .delay(1200)
+            .delay(delay)
             .to({x: position.x, y: position.y, z: position.z}, 2000)
             .easing(tween.Easing.Quadratic.Out)
             .onUpdate(() => {

@@ -4,6 +4,7 @@ import {Color, Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "thre
 import FontJSON from "./assets/NotoSans-Italic-VariableFont_wdth,wght-msdf.json" with {type: "json"};
 import FontImage from "./assets/NotoSans-Italic-VariableFontwdthwght.png";
 
+
 export let button = []
 let save_language = 'fr';
 export class Interface {
