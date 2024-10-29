@@ -16,8 +16,8 @@ export class Interface {
         this.dropdownVisible = false;
         this.translations = getTranslations;
         this.container = new ThreeMeshUI.Block({
-            width: 0.81,
-            height: 1.3,
+            width: 0.82,
+            height: 1.32,
             ref: "container",
             padding: 0.025,
             fontFamily: FontJSON,
