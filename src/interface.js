@@ -1,12 +1,15 @@
 "use strict";
 import ThreeMeshUI from "three-mesh-ui";
-import {Color, Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
+import {BoxGeometry, Color, DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
 import FontJSON from "./assets/NotoSans-Italic-VariableFont_wdth,wght-msdf.json" with {type: "json"};
 import FontImage from "./assets/NotoSans-Italic-VariableFontwdthwght.png";
 
 
 export let button = []
 let save_language = 'fr';
+let plane_save = null;
+export let sceneMeshes = [];
+
 export class Interface {
     constructor(position, scene, getTranslations, brain_loader) {
         this.position = position;
@@ -34,6 +37,24 @@ export class Interface {
         this.container.rotation.x = this.position.rotation ? this.position.rotation.x : -0.55;
         this.container.rotation.y = this.position.rotation ? this.position.rotation.y : 0;
         this.container.rotation.z = this.position.rotation ? this.position.rotation.z : 0;
+        if (plane_save !== null) {
+            sceneMeshes = sceneMeshes.filter((item) => item !== plane_save);
+            plane_save = null;
+        }
+        const geometry = new BoxGeometry(0.82, 1.32, 0.1);
+        const material = new MeshBasicMaterial({
+            color: 0x000000,
+            side: DoubleSide,
+            transparent: true,
+            opacity: 0,
+            visible: false
+        });
+        const plane = new Mesh(geometry, material);
+        plane.position.set(0, 0, 0);
+        plane.rotation.set(0, 0, 0);
+        this.container.add(plane);
+        sceneMeshes.push(plane);
+        plane_save = plane;
         this.scene.add(this.container);
 
         const title = new ThreeMeshUI.Block({
@@ -112,6 +133,10 @@ export class Interface {
                 attributes: selectedAttributes,
                 onSet: (self) => {
                     console.log("Button selected");
+                    if (plane_save !== null) {
+                        sceneMeshes = sceneMeshes.filter((item) => item !== plane_save);
+                        plane_save = null;
+                    }
                     this.scene.remove(this.container);
                     this.brain_loader();
                     button = [];

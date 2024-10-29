@@ -31,6 +31,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: change env
+        run: echo "MODE=production" >> .env
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

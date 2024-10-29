@@ -43,9 +43,9 @@ import ThreeMeshUI from 'three-mesh-ui';
 //
 // Consider using alternatives like Oimo or cannon-es
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {button, Interface, sceneMeshes} from "./interface.js";
 
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {button, Interface} from "./interface.js";
 import trad_intro from "./data/intro_interface.json" with {type: "json"};
 import Death from "./sounds/Death.mp3";
 import sound_info from "./sounds/info.mp3";
@@ -55,7 +55,12 @@ import Dead_body_hitting from "./sounds/Dead_body_hitting.mp3";
 
 // Example of hard link to official repo for data, if needed
 // const MODEL_PATH = 'https://raw.githubusercontent.com/mrdoob/js/r148/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb';
-
+// get env mode
+const env = import.meta.env.MODE; // 'development', 'production', 'test'
+if (env === 'production') {
+    console.log = function () {
+    }
+}
 
 // INSERT CODE HERE
 
@@ -99,7 +104,6 @@ controls.listenToKeyEvents(window); // optional
 
 const geometry = new BoxGeometry(1, 1, 1);
 const material = new MeshNormalMaterial();
-let sceneMeshes = []
 
 const loader2 = new TextureLoader();
 loader2.load('assets/ml-reseau-neurones.png', (texture) => {
@@ -108,34 +112,6 @@ loader2.load('assets/ml-reseau-neurones.png', (texture) => {
 
 const loader = new GLTFLoader();
 
-function brain_loader() {
-    esteban_loader().then(() => {
-
-        loader.load('assets/models/brain_project.glb', function (gltf) {
-            gltf.scene.traverse(function (child) {
-                if (child.isMesh) {
-                    sceneMeshes.push(child);
-                }
-            });
-            scene.add(gltf.scene);
-            const sound = new Audio(sound_info);
-            animation_camera.push(new move_camera_with_color(new color(0, 0, 0), camera, scene).move_with_position({
-                x: 0,
-                y: 0,
-                z: 3
-            }, 0));
-            sound.volume = 0.1;
-            sound.play();
-
-        }, function (xhr) {
-            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-        }, function (error) {
-            console.error('An error happened', error);
-        });
-    });
-
-
-}
 
 let mixer_1;
 let mixer_2
@@ -168,7 +144,6 @@ function esteban_loader() {
 
             // Start checking if the animation has started
             const checkAnimationStart = setInterval(() => {
-                console.log(action.time);
                 if (!soundPlayed && action.time > 2.3) {
                     sound2.play();
                     soundPlayed = true;
@@ -186,7 +161,6 @@ function esteban_loader() {
             let soundPlayed2 = false;
 
             const checkAnimationStart2 = setInterval(() => {
-                console.log(action2.time);
                 if (!soundPlayed2 && action2.time > 0.5) {
                     sound3.play();
                     soundPlayed2 = true;
@@ -198,7 +172,6 @@ function esteban_loader() {
             // Add event listener for the end of the animation
             action.clampWhenFinished = true;
             action.loop = LoopOnce;
-            // raletir l'animation
             action.timeScale = 1;
 
             action2.clampWhenFinished = true;
@@ -218,6 +191,34 @@ function esteban_loader() {
     });
 }
 
+function brain_loader() {
+    esteban_loader().then(() => {
+
+        loader.load('assets/models/brain_project.glb', function (gltf) {
+            gltf.scene.traverse(function (child) {
+                if (child.isMesh) {
+                    sceneMeshes.push(child);
+                }
+            });
+            scene.add(gltf.scene);
+            const sound = new Audio(sound_info);
+            animation_camera.push(new move_camera_with_color(new color(0, 0, 0), camera, scene).move_with_position({
+                x: 0,
+                y: 0,
+                z: 3
+            }, 0));
+            sound.volume = 0.1;
+            sound.play();
+
+        }, function (xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        }, function (error) {
+            console.error('An error happened', error);
+        });
+    });
+
+
+}
 
 //renderer.physicallyCorrectLights = true //deprecated
 renderer.useLegacyLights = false //use this instead of setting physicallyCorrectLights=true property
@@ -263,19 +264,19 @@ function onMouseMove(event) {
 
     raycaster.setFromCamera(mouse, camera)
 
-    const intersects = raycaster.intersectObjects(sceneMeshes, false)
+    const intersects = raycast(sceneMeshes)
 
-    if (intersects.length > 0) {
+    if (intersects) {
         line.position.set(0, 0, 0)
-        line.lookAt((intersects[0].face).normal)
-        line.position.copy(intersects[0].point)
+        line.lookAt((intersects.face).normal)
+        line.position.copy(intersects.point)
 
         const n = new Vector3()
-        n.copy((intersects[0].face).normal)
-        n.transformDirection(intersects[0].object.matrixWorld)
+        n.copy((intersects.face).normal)
+        n.transformDirection(intersects.object.matrixWorld)
 
         arrowHelper.setDirection(n)
-        arrowHelper.position.copy(intersects[0].point)
+        arrowHelper.position.copy(intersects.point)
     }
 }
 
@@ -319,10 +320,10 @@ function Click(event) {
     mouse.set((event.clientX / renderer.domElement.clientWidth) * 2 - 1, -(event.clientY / renderer.domElement.clientHeight) * 2 + 1);
     raycaster.setFromCamera(mouse, camera);
 
-    const intersects = raycaster.intersectObjects(sceneMeshes, false);
+    const intersects = raycast(sceneMeshes);
 
-    if (intersects.length > 0) {
-        const intersect = intersects[0];
+    if (intersects) {
+        const intersect = intersects;
         const object = intersect.object;
 
         if (object.material.map) {
@@ -411,9 +412,9 @@ function updateButtons() {
 }
 
 
-function raycast() {
+function raycast(func = button) {
     // Perform the raycast
-    return button.reduce((closestIntersection, obj) => {
+    return func.reduce((closestIntersection, obj) => {
         let intersection;
         try {
             intersection = raycaster.intersectObject(obj, true);
