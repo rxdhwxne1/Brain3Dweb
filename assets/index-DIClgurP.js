@@ -30918,6 +30918,8 @@ const FontJSON = {
 const FontImage = "" + new URL("NotoSans-Italic-VariableFontwdthwght-D-ldLlYQ.png", import.meta.url).href;
 let button = [];
 let save_language = "fr";
+let plane_save = null;
+let sceneMeshes = [];
 class Interface {
   constructor(position, scene2, getTranslations, brain_loader2) {
     this.position = position;
@@ -30944,6 +30946,24 @@ class Interface {
     this.container.rotation.x = this.position.rotation ? this.position.rotation.x : -0.55;
     this.container.rotation.y = this.position.rotation ? this.position.rotation.y : 0;
     this.container.rotation.z = this.position.rotation ? this.position.rotation.z : 0;
+    if (plane_save !== null) {
+      sceneMeshes = sceneMeshes.filter((item) => item !== plane_save);
+      plane_save = null;
+    }
+    const geometry2 = new BoxGeometry(0.82, 1.32, 0.1);
+    const material2 = new MeshBasicMaterial({
+      color: 0,
+      side: DoubleSide,
+      transparent: true,
+      opacity: 0,
+      visible: false
+    });
+    const plane = new Mesh(geometry2, material2);
+    plane.position.set(0, 0, 0);
+    plane.rotation.set(0, 0, 0);
+    this.container.add(plane);
+    sceneMeshes.push(plane);
+    plane_save = plane;
     this.scene.add(this.container);
     const title = new __webpack_exports__default.Block({
       height: 0.2,
@@ -31013,6 +31033,10 @@ class Interface {
         attributes: selectedAttributes,
         onSet: (self2) => {
           console.log("Button selected");
+          if (plane_save !== null) {
+            sceneMeshes = sceneMeshes.filter((item) => item !== plane_save);
+            plane_save = null;
+          }
           this.scene.remove(this.container);
           this.brain_loader();
           button = [];
@@ -34766,6 +34790,10 @@ const Death = "" + new URL("Death-BvZyCsa_.mp3", import.meta.url).href;
 const Damage = "" + new URL("Damage-BuRK0uhm.mp3", import.meta.url).href;
 const Chute = "" + new URL("Chute-BP9NI-y7.mp3", import.meta.url).href;
 const Dead_body_hitting = "" + new URL("Dead_body_hitting-DwdR7eNj.mp3", import.meta.url).href;
+{
+  console.log = function() {
+  };
+}
 const scene = new Scene();
 const aspect = window.innerWidth / window.innerHeight;
 const camera = new PerspectiveCamera(75, aspect, 0.1, 1e3);
@@ -34796,36 +34824,11 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.listenToKeyEvents(window);
 const geometry = new BoxGeometry(1, 1, 1);
 const material = new MeshNormalMaterial();
-let sceneMeshes = [];
 const loader2 = new TextureLoader();
 loader2.load("assets/ml-reseau-neurones.png", (texture2) => {
   scene.background = texture2;
 });
 const loader = new GLTFLoader();
-function brain_loader() {
-  esteban_loader().then(() => {
-    loader.load("assets/models/brain_project.glb", function(gltf) {
-      gltf.scene.traverse(function(child) {
-        if (child.isMesh) {
-          sceneMeshes.push(child);
-        }
-      });
-      scene.add(gltf.scene);
-      const sound = new Audio(sound_info);
-      animation_camera.push(new move_camera_with_color(new color(0, 0, 0), camera, scene).move_with_position({
-        x: 0,
-        y: 0,
-        z: 3
-      }, 0));
-      sound.volume = 0.1;
-      sound.play();
-    }, function(xhr) {
-      console.log(xhr.loaded / xhr.total * 100 + "% loaded");
-    }, function(error) {
-      console.error("An error happened", error);
-    });
-  });
-}
 let mixer_1;
 let mixer_2;
 function esteban_loader() {
@@ -34855,7 +34858,6 @@ function esteban_loader() {
       const action = mixer_1.clipAction(animations[0]);
       let soundPlayed = false;
       const checkAnimationStart = setInterval(() => {
-        console.log(action.time);
         if (!soundPlayed && action.time > 2.3) {
           sound2.play();
           soundPlayed = true;
@@ -34870,7 +34872,6 @@ function esteban_loader() {
       setTimeout(() => action2.play(), 900);
       let soundPlayed2 = false;
       const checkAnimationStart2 = setInterval(() => {
-        console.log(action2.time);
         if (!soundPlayed2 && action2.time > 0.5) {
           sound3.play();
           soundPlayed2 = true;
@@ -34884,6 +34885,30 @@ function esteban_loader() {
       action2.loop = LoopOnce;
       action2.timeScale = 1.5;
       scene.add(model);
+    }, function(xhr) {
+      console.log(xhr.loaded / xhr.total * 100 + "% loaded");
+    }, function(error) {
+      console.error("An error happened", error);
+    });
+  });
+}
+function brain_loader() {
+  esteban_loader().then(() => {
+    loader.load("assets/models/brain_project.glb", function(gltf) {
+      gltf.scene.traverse(function(child) {
+        if (child.isMesh) {
+          sceneMeshes.push(child);
+        }
+      });
+      scene.add(gltf.scene);
+      const sound = new Audio(sound_info);
+      animation_camera.push(new move_camera_with_color(new color(0, 0, 0), camera, scene).move_with_position({
+        x: 0,
+        y: 0,
+        z: 3
+      }, 0));
+      sound.volume = 0.1;
+      sound.play();
     }, function(xhr) {
       console.log(xhr.loaded / xhr.total * 100 + "% loaded");
     }, function(error) {
@@ -34918,16 +34943,16 @@ const line = new Line(geometry, material);
 function onMouseMove(event) {
   mouse.set(event.clientX / renderer.domElement.clientWidth * 2 - 1, -(event.clientY / renderer.domElement.clientHeight) * 2 + 1);
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(sceneMeshes, false);
-  if (intersects.length > 0) {
+  const intersects = raycast(sceneMeshes);
+  if (intersects) {
     line.position.set(0, 0, 0);
-    line.lookAt(intersects[0].face.normal);
-    line.position.copy(intersects[0].point);
+    line.lookAt(intersects.face.normal);
+    line.position.copy(intersects.point);
     const n = new Vector3();
-    n.copy(intersects[0].face.normal);
-    n.transformDirection(intersects[0].object.matrixWorld);
+    n.copy(intersects.face.normal);
+    n.transformDirection(intersects.object.matrixWorld);
     arrowHelper.setDirection(n);
-    arrowHelper.position.copy(intersects[0].point);
+    arrowHelper.position.copy(intersects.point);
   }
 }
 function getColor(intersect2, texture2, sampleSize = 5) {
@@ -34961,9 +34986,9 @@ let interface_text;
 function Click(event) {
   mouse.set(event.clientX / renderer.domElement.clientWidth * 2 - 1, -(event.clientY / renderer.domElement.clientHeight) * 2 + 1);
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(sceneMeshes, false);
-  if (intersects.length > 0) {
-    const intersect2 = intersects[0];
+  const intersects = raycast(sceneMeshes);
+  if (intersects) {
+    const intersect2 = intersects;
     const object = intersect2.object;
     if (object.material.map) {
       animation_camera = [];
@@ -35016,8 +35041,8 @@ function updateButtons() {
     }
   });
 }
-function raycast() {
-  return button.reduce((closestIntersection, obj) => {
+function raycast(func = button) {
+  return func.reduce((closestIntersection, obj) => {
     let intersection;
     try {
       intersection = raycaster.intersectObject(obj, true);
@@ -35069,4 +35094,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-BUQWe9iR.js.map
+//# sourceMappingURL=index-DIClgurP.js.map
