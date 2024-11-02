@@ -18,7 +18,7 @@ cerveau sur laquelle il a cliqué selon la langue choisie.
 
 ## Illustration
 
-https://github.com/user-attachments/assets/f0f9ab67-1df7-41a4-a619-f374c51d695f
+https://github.com/user-attachments/assets/a485a0bd-b3af-49da-89c3-2dfe8f896d87
 
 ## Lien pour tester l'application en live
 
