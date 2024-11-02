@@ -31962,7 +31962,7 @@ class OrbitControls extends Controls {
     this._onTouchStart = onTouchStart.bind(this);
     this._onTouchMove = onTouchMove.bind(this);
     this._onMouseDown = onMouseDown.bind(this);
-    this._onMouseMove = onMouseMove$1.bind(this);
+    this._onMouseMove = onMouseMove.bind(this);
     this._interceptControlDown = interceptControlDown.bind(this);
     this._interceptControlUp = interceptControlUp.bind(this);
     if (this.domElement !== null) {
@@ -32543,7 +32543,7 @@ function onMouseDown(event) {
     this.dispatchEvent(_startEvent);
   }
 }
-function onMouseMove$1(event) {
+function onMouseMove(event) {
   switch (this.state) {
     case _STATE.ROTATE:
       if (this.enableRotate === false) return;
@@ -35409,6 +35409,7 @@ loader2.load("assets/ml-reseau-neurones.png", (texture2) => {
   console.log = function() {
   };
 }
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const scene = new Scene();
 const aspect = window.innerWidth / window.innerHeight;
 const listener = new AudioListener();
@@ -35430,8 +35431,27 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 controls.enableDamping = true;
 renderer.domElement.addEventListener("click", Click, false);
-renderer.domElement.addEventListener("mousemove", onMouseMove, false);
-renderer.domElement.addEventListener("mousedown", () => {
+if (isMobile) {
+  renderer.domElement.addEventListener("touchmove", onMove, false);
+} else {
+  renderer.domElement.addEventListener("mousemove", onMove, false);
+}
+const handleTouchStart = (event) => {
+  raycaster.setFromCamera(mouse, camera);
+  const intersect2 = raycast();
+  if (intersect2 && intersect2.object.isUI) {
+    controls.enabled = false;
+    selectState = true;
+    intersect2.object.setState("selected");
+  } else {
+    controls.enabled = true;
+  }
+};
+const handleEnd = () => {
+  controls.enabled = true;
+  selectState = false;
+};
+const handleMouseDown = (event) => {
   let intersect2;
   if (mouse.x !== null && mouse.y !== null) {
     raycaster.setFromCamera(mouse, camera);
@@ -35444,16 +35464,30 @@ renderer.domElement.addEventListener("mousedown", () => {
   } else {
     controls.enabled = true;
   }
-});
-renderer.domElement.addEventListener("mouseup", () => {
-  controls.enabled = true;
-  selectState = false;
-});
+};
+if (isMobile) {
+  renderer.domElement.addEventListener("touchstart", handleTouchStart);
+  renderer.domElement.addEventListener("touchend", handleEnd);
+} else {
+  renderer.domElement.addEventListener("mousedown", handleMouseDown);
+  renderer.domElement.addEventListener("mouseup", handleEnd);
+}
 const arrowHelper = new ArrowHelper(new Vector3(), new Vector3(), 0.25, 16776960);
 scene.add(arrowHelper);
 const line = new Line(geometry, material);
-function onMouseMove(event) {
-  mouse.set(event.clientX / renderer.domElement.clientWidth * 2 - 1, -(event.clientY / renderer.domElement.clientHeight) * 2 + 1);
+function onMove(event) {
+  let clientX, clientY;
+  if (isMobile && event.touches) {
+    clientX = event.touches[0].clientX;
+    clientY = event.touches[0].clientY;
+  } else {
+    clientX = event.clientX;
+    clientY = event.clientY;
+  }
+  mouse.set(
+    clientX / renderer.domElement.clientWidth * 2 - 1,
+    -(clientY / renderer.domElement.clientHeight) * 2 + 1
+  );
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycast(sceneMeshes);
   if (intersects) {
@@ -35578,4 +35612,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-K8syMsTY.js.map
+//# sourceMappingURL=index-BvIlNeWN.js.map
