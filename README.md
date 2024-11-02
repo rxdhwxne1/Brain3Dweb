@@ -1,88 +1,59 @@
-# three_vite
-Basic THREE.js template using [Vite](https://vitejs.dev).
+# three_vite Project
 
-Allows testing and modifying [official THREE.js examples](https://threejs.org/examples/) locally, at lightning speed.
-After trying Parcel and Rollup, this is probably the most developer-friendly to start THREE.js development in 2023 : it's insanely fast, it supports live reload out of the box, while remaining simple to use and to extend.
+## Description du projet
 
-## Batteries included
+### Votre but
 
-Pre-configured to support :
+Ce projet a pour but de faire un mini-cours sur les différentes parties du cerveau avec une visualisation 3D et des
+informations sur chaque partie.
 
-- glTF file loading
-- ammo.js wasm physics library
-- VSCode launch scripts
-- THREE.js type definitions : for IntelliSense in VS Code
+### Mode d'emploi
 
-Have a look at vite.config.js and customize it to your needs (additional libraries, file formats etc.).
+L'utilisateur peut naviguer dans le cerveau en cliquant sur les différentes parties du cerveau. Lorsqu'il clique sur une
+partie, une fenêtre s'ouvre avec des informations sur cette partie.
+Il peut changer de langue en cliquant sur le bouton en haut à gauche de l'interface qui s'affiche en français par
+défaut.
+Il peut cliquer sur le bouton en haut à droite pour lancer un tts qui lui donnera des informations sur la partie du
+cerveau sur laquelle il a cliqué selon la langue choisie.
 
-## Installation
+## Illustration
 
-Install [Node.js](https://nodejs.org)
+![Demonstration](./Demonstration_web_site.mp4)
 
-- Clone or download repo
-- run `npm install` : fetches and install all dependencies
-- `npm run build` : packages all code and resources into the `dist` folder
-- `npm run dev` : launches a server and opens your browser in `https://localhost:5173` by default
-- Edit your code : your changes are reflected instantly!
+## Lien pour tester l'application en live
 
-## HTTPS
+[Tester l'application en live](https://rxdhwxne1.github.io/Brain3Dweb/)
 
-HTTPS is required to use some features such as the WebXR API
+## Nom des membres du groupe
 
+- Esteban Arroyo
+- Radhwane Namaoui
 
-### Using Cloudflare Tunnel for free without a domain (recommended)
+## Répartition des rôles
 
-  - Install [Homebrew](https://brew.sh)
+- **Esteban Arroyo**:
+  - Création de la scène 3D
+  - Implémentation des interactions avec les objets 3D
+  - Gestion des langues
+  - Implémentation du TTS
+  - Création de la structure des interfaces
+  - Animation du mouvement de caméra
+  - Ajout d'un personnage animé
 
-```bash
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
+- **Radhwane Namaoui**:
+  - Gestion des informations sur les différentes parties du cerveau,
+  - Ajout des sons d'ambiance
+  - Ajout de texture d'arrière-plan
 
-then follow instructions
+## Sources d'inspiration
 
+- [Exemples THREE.js](https://threejs.org/examples/)
+- [Manuel THREE.js](https://threejs.org/docs/)
+- [Articles et tutoriels](https://sbcode.net/threejs/)
+- [Modèles 3D](https://sketchfab.com/)
+- [Exemple Three Mesh Ui](https://felixmariotto.github.io/three-mesh-ui/#basic_setup)
+- [Modèle 3D of Brain](https://sketchfab.com/3d-models/brain-project-24ec03412dd8432bb0d3e750a72608e0)
 
-```bash
-echo >> /Users/XXX/.zprofile
+## Licence
 
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/XXX/.zprofile
-
-eval "$(/opt/homebrew/bin/brew shellenv)"
-```
-
-  - **[Install `cloudflared`](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/)**
-
-```bash
-brew install cloudflared
-```
-- run your app locally
-
-```bash
-npm run dev
-```
-
-- run `cloudflared` tunnel
-
-```bash
-cloudflared --url http://localhost:5173/
-```
-
-This will create a random temporary address ending in `*.trycloudflare.com`
-
-You can share this address by sending a link or by generating a QR code (very useful for mobile devices and some XR headsets).
-
-### Persistent link
-
-If you want more persistence, you should register a domain name, or connect your github account to [Cloudflare Pages](https://pages.cloudflare.com) for free.
-
-Alternatively, you could simply [use GitHub Pages to host your application persistently](https://sbcode.net/threejs/github-pages/).
-
-### Tunneling alternatives
-
-Check these tunneling alternatives such as `ngrok` or `zrok` for simple personal projects, use [tunneling solutions](https://github.com/anderspitman/awesome-tunneling) 
-
-
-### Manual HTTPS setup
-
-In order to use `https`, copy your certificates to the `.cert` folder, and change the `serve` command to:
-
-`"serve": "http-server dist -S -C .cert/cert.pem -K .cert/key.pem`
+Ce projet est sous licence MIT.
