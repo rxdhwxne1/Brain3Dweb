@@ -35257,7 +35257,7 @@ function load_model_texture() {
         action2.loop = LoopOnce;
         action2.timeScale = 1.5;
         scene.add(model);
-      }, 2e3);
+      }, 500);
     });
   });
 }
@@ -35479,4 +35479,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-CiiYrHg8.js.map
+//# sourceMappingURL=index-awDXwZ3u.js.map
