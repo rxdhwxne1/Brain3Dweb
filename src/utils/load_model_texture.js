@@ -21,7 +21,7 @@ function load_model_texture() {
     const sound3 = new Audio(listener);
     return new Promise((resolve, reject) => {
         const modelPromise = new Promise((resolveModel, rejectModel) => {
-            loader.load('assets/models/animation_dying_5.glb', function (gltf) {
+            loader.load('assets/models/animation_dying_6.glb', function (gltf) {
                 const model = gltf.scene;
                 const animations = gltf.animations;
 
@@ -119,7 +119,7 @@ function load_model_texture() {
 
 
                 scene.add(model);
-            }, 500);
+            }, 250);
         });
 
 
