@@ -119,7 +119,7 @@ function load_model_texture() {
 
 
                 scene.add(model);
-            }, 2000);
+            }, 500);
         });
 
 
