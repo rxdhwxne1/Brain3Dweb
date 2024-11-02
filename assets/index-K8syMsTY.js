@@ -19401,6 +19401,76 @@ class CylinderGeometry extends BufferGeometry {
     return new CylinderGeometry(data.radiusTop, data.radiusBottom, data.height, data.radialSegments, data.heightSegments, data.openEnded, data.thetaStart, data.thetaLength);
   }
 }
+class SphereGeometry extends BufferGeometry {
+  constructor(radius = 1, widthSegments = 32, heightSegments = 16, phiStart = 0, phiLength = Math.PI * 2, thetaStart = 0, thetaLength = Math.PI) {
+    super();
+    this.type = "SphereGeometry";
+    this.parameters = {
+      radius,
+      widthSegments,
+      heightSegments,
+      phiStart,
+      phiLength,
+      thetaStart,
+      thetaLength
+    };
+    widthSegments = Math.max(3, Math.floor(widthSegments));
+    heightSegments = Math.max(2, Math.floor(heightSegments));
+    const thetaEnd = Math.min(thetaStart + thetaLength, Math.PI);
+    let index = 0;
+    const grid = [];
+    const vertex2 = new Vector3();
+    const normal = new Vector3();
+    const indices = [];
+    const vertices = [];
+    const normals = [];
+    const uvs = [];
+    for (let iy = 0; iy <= heightSegments; iy++) {
+      const verticesRow = [];
+      const v = iy / heightSegments;
+      let uOffset = 0;
+      if (iy === 0 && thetaStart === 0) {
+        uOffset = 0.5 / widthSegments;
+      } else if (iy === heightSegments && thetaEnd === Math.PI) {
+        uOffset = -0.5 / widthSegments;
+      }
+      for (let ix = 0; ix <= widthSegments; ix++) {
+        const u = ix / widthSegments;
+        vertex2.x = -radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
+        vertex2.y = radius * Math.cos(thetaStart + v * thetaLength);
+        vertex2.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
+        vertices.push(vertex2.x, vertex2.y, vertex2.z);
+        normal.copy(vertex2).normalize();
+        normals.push(normal.x, normal.y, normal.z);
+        uvs.push(u + uOffset, 1 - v);
+        verticesRow.push(index++);
+      }
+      grid.push(verticesRow);
+    }
+    for (let iy = 0; iy < heightSegments; iy++) {
+      for (let ix = 0; ix < widthSegments; ix++) {
+        const a = grid[iy][ix + 1];
+        const b = grid[iy][ix];
+        const c = grid[iy + 1][ix];
+        const d = grid[iy + 1][ix + 1];
+        if (iy !== 0 || thetaStart > 0) indices.push(a, b, d);
+        if (iy !== heightSegments - 1 || thetaEnd < Math.PI) indices.push(b, c, d);
+      }
+    }
+    this.setIndex(indices);
+    this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+    this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+    this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+  }
+  copy(source) {
+    super.copy(source);
+    this.parameters = Object.assign({}, source.parameters);
+    return this;
+  }
+  static fromJSON(data) {
+    return new SphereGeometry(data.radius, data.widthSegments, data.heightSegments, data.phiStart, data.phiLength, data.thetaStart, data.thetaLength);
+  }
+}
 class MeshStandardMaterial extends Material {
   constructor(parameters) {
     super();
@@ -35168,10 +35238,34 @@ function addPrimitiveAttributes(geometry2, primitiveDef, parser) {
 const loader = new GLTFLoader();
 let mixer_1;
 let mixer_2;
+let loadingIndicator;
+const bounceSpeed = 0.1;
+const colorChangeSpeed = 0.5;
+let colorHue = 0;
+function createLoadingIndicator() {
+  const geometry2 = new SphereGeometry(0.5, 32, 32);
+  const material2 = new MeshBasicMaterial({ color: 16777215 });
+  loadingIndicator = new Mesh(geometry2, material2);
+  loadingIndicator.position.set(0, 0, 4);
+  scene.add(loadingIndicator);
+  animateLoadingIndicator();
+}
+function animateLoadingIndicator() {
+  let bounceOffset = 0;
+  function animate() {
+    bounceOffset += bounceSpeed;
+    loadingIndicator.position.y = 15 + Math.abs(Math.sin(bounceOffset)) * 0.5;
+    colorHue = (colorHue + colorChangeSpeed) % 360;
+    loadingIndicator.material.color.setHSL(colorHue / 360, 1, 0.5);
+    requestAnimationFrame(animate);
+  }
+  animate();
+}
 function load_model_texture() {
   const sound = new Audio(listener);
   const sound2 = new Audio(listener);
   const sound3 = new Audio(listener);
+  createLoadingIndicator();
   return new Promise((resolve, reject) => {
     const modelPromise = new Promise((resolveModel, rejectModel) => {
       loader.load("assets/models/animation_dying_6.glb", function(gltf) {
@@ -35238,7 +35332,12 @@ function load_model_texture() {
         const action2 = mixer_2.clipAction(animations[1]);
         setTimeout(() => action2.play(), 900);
         let soundPlayed2 = false;
+        let delete_done = false;
         const checkAnimationStart2 = setInterval(() => {
+          if (!delete_done) {
+            scene.remove(loadingIndicator);
+            delete_done = true;
+          }
           if (!soundPlayed2 && action2.time > 0.5) {
             audioLoader.load(Dead_body_hitting, function(buffer) {
               sound3.setBuffer(buffer);
@@ -35479,4 +35578,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-atd0y4E0.js.map
+//# sourceMappingURL=index-K8syMsTY.js.map
