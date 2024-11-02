@@ -35193,69 +35193,71 @@ function load_model_texture() {
       resolveCamera();
     });
     Promise.all([modelPromise, cameraPromise]).then(([{ model, animations }]) => {
-      const sound = new Audio(listener);
-      const audioLoader = new AudioLoader();
-      audioLoader.load(Death, function(buffer) {
-        sound.setBuffer(buffer);
-        sound.setLoop(false);
-        sound.setVolume(0.5);
-        sound.play();
-      });
-      const sound2 = new Audio(listener);
-      const sound3 = new Audio(listener);
-      mixer_1.addEventListener(
-        "finished",
-        () => {
-          sound2.pause();
-          scene.remove(model);
-          return resolve();
-        }
-      );
-      const action = mixer_1.clipAction(animations[0]);
-      let soundPlayed = false;
-      const checkAnimationStart = setInterval(() => {
-        if (!soundPlayed && action.time > 2.3) {
-          audioLoader.load(Chute, function(buffer) {
-            sound2.setBuffer(buffer);
-            sound2.setLoop(false);
-            sound2.setVolume(0.5);
-            sound2.play();
-          });
-          soundPlayed = true;
-        } else if (soundPlayed && action.time > 3.3) {
-          const sound4 = new Audio(listener);
-          audioLoader.load(Damage, function(buffer) {
-            sound4.setBuffer(buffer);
-            sound4.setLoop(false);
-            sound4.setVolume(0.5);
-            sound4.play();
-          });
-          clearInterval(checkAnimationStart);
-        }
-      }, 10);
-      action.play();
-      const action2 = mixer_2.clipAction(animations[1]);
-      setTimeout(() => action2.play(), 900);
-      let soundPlayed2 = false;
-      const checkAnimationStart2 = setInterval(() => {
-        if (!soundPlayed2 && action2.time > 0.5) {
-          audioLoader.load(Dead_body_hitting, function(buffer) {
-            sound3.setBuffer(buffer);
-            sound3.setLoop(false);
-            sound3.setVolume(0.5);
-            sound3.play();
-          });
-          soundPlayed2 = true;
-          clearInterval(checkAnimationStart2);
-        }
-      }, 10);
-      action.clampWhenFinished = true;
-      action.loop = LoopOnce;
-      action.timeScale = 1;
-      action2.clampWhenFinished = true;
-      action2.loop = LoopOnce;
-      action2.timeScale = 1.5;
-      scene.add(model);
+      setTimeout(() => {
+        const sound = new Audio(listener);
+        const audioLoader = new AudioLoader();
+        audioLoader.load(Death, function(buffer) {
+          sound.setBuffer(buffer);
+          sound.setLoop(false);
+          sound.setVolume(0.5);
+          sound.play();
+        });
+        const sound2 = new Audio(listener);
+        const sound3 = new Audio(listener);
+        mixer_1.addEventListener(
+          "finished",
+          () => {
+            sound2.pause();
+            scene.remove(model);
+            return resolve();
+          }
+        );
+        const action = mixer_1.clipAction(animations[0]);
+        let soundPlayed = false;
+        const checkAnimationStart = setInterval(() => {
+          if (!soundPlayed && action.time > 2.3) {
+            audioLoader.load(Chute, function(buffer) {
+              sound2.setBuffer(buffer);
+              sound2.setLoop(false);
+              sound2.setVolume(0.5);
+              sound2.play();
+            });
+            soundPlayed = true;
+          } else if (soundPlayed && action.time > 3.3) {
+            const sound4 = new Audio(listener);
+            audioLoader.load(Damage, function(buffer) {
+              sound4.setBuffer(buffer);
+              sound4.setLoop(false);
+              sound4.setVolume(0.5);
+              sound4.play();
+            });
+            clearInterval(checkAnimationStart);
+          }
+        }, 10);
+        action.play();
+        const action2 = mixer_2.clipAction(animations[1]);
+        setTimeout(() => action2.play(), 900);
+        let soundPlayed2 = false;
+        const checkAnimationStart2 = setInterval(() => {
+          if (!soundPlayed2 && action2.time > 0.5) {
+            audioLoader.load(Dead_body_hitting, function(buffer) {
+              sound3.setBuffer(buffer);
+              sound3.setLoop(false);
+              sound3.setVolume(0.5);
+              sound3.play();
+            });
+            soundPlayed2 = true;
+            clearInterval(checkAnimationStart2);
+          }
+        }, 10);
+        action.clampWhenFinished = true;
+        action.loop = LoopOnce;
+        action.timeScale = 1;
+        action2.clampWhenFinished = true;
+        action2.loop = LoopOnce;
+        action2.timeScale = 1.5;
+        scene.add(model);
+      }, 2e3);
     });
   });
 }
@@ -35477,4 +35479,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-Di1ci489.js.map
+//# sourceMappingURL=index-34R0Ahf_.js.map
