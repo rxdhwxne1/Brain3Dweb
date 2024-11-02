@@ -28,3 +28,26 @@ export class color {
     }
 
 }
+
+export function getColor(intersect, texture, sampleSize = 5) {
+    // Créer un tableau pour stocker les couleurs échantillonnées
+    const uv = intersect.uv;
+
+    // Créer un canvas pour échantillonner la texture
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = texture.image.width;
+    canvas.height = texture.image.height;
+    context.drawImage(texture.image, 0, 0);
+
+    // Échantillonner la texture autour de l'intersection
+    const x = Math.floor(uv.x * canvas.width);
+    const y = Math.floor((1 - uv.y) * canvas.height); // Inverser l'axe Y
+    const imageData = context.getImageData(x, y, sampleSize, sampleSize);
+
+    // get the pixel data
+    const data = imageData.data;
+    console.log(data[0], data[1], data[2]);
+    // get the color for this pixel
+    return new color(data[0], data[1], data[2]);
+}

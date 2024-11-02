@@ -5,9 +5,9 @@ import * as tween from "@tweenjs/tween.js";
 import json_file from "../data/color_position.json" with {type: "json"};
 import {Interface} from "../interface.js";
 import brain_info from "../data/brain_lobes_info.json" with {type: "json"};
-import {Vector3} from "three";
+import {Audio, AudioLoader, Vector3} from "three";
 import sound_info from "../sounds/info.mp3";
-import {animation_camera} from "../main.js";
+import {animation_camera, listener} from "../main.js";
 
 let infoPanel = null;
 
@@ -22,7 +22,9 @@ class move_camera_with_color {
         let data = JSON.parse(JSON.stringify(json_file));
         let vector;
         let trad;
-        const sound = new Audio(sound_info);
+
+        const sound = new Audio(listener);
+        const audioLoader = new AudioLoader();
         switch (this.color.get_color()) {
             case "yellow":
                 vector = {x: data.yellow.x, y: data.yellow.y, z: data.yellow.z};
@@ -49,8 +51,12 @@ class move_camera_with_color {
                 console.error("Color not found");
                 return new Error("Color not found");
         }
-
-        sound.play();
+        audioLoader.load(sound_info, function (buffer) {
+            sound.setBuffer(buffer);
+            sound.setLoop(false);
+            sound.setVolume(0.5);
+            sound.play();
+        });
 
         return new tween.Tween(this.camera.position)
             .to({x: vector.x, y: vector.y, z: vector.z}, 2000)
