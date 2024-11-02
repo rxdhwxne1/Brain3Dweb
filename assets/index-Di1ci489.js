@@ -215,27 +215,27 @@ const GLSL3 = "300 es";
 const WebGLCoordinateSystem = 2e3;
 const WebGPUCoordinateSystem = 2001;
 class EventDispatcher {
-  addEventListener(type, listener) {
+  addEventListener(type, listener2) {
     if (this._listeners === void 0) this._listeners = {};
     const listeners = this._listeners;
     if (listeners[type] === void 0) {
       listeners[type] = [];
     }
-    if (listeners[type].indexOf(listener) === -1) {
-      listeners[type].push(listener);
+    if (listeners[type].indexOf(listener2) === -1) {
+      listeners[type].push(listener2);
     }
   }
-  hasEventListener(type, listener) {
+  hasEventListener(type, listener2) {
     if (this._listeners === void 0) return false;
     const listeners = this._listeners;
-    return listeners[type] !== void 0 && listeners[type].indexOf(listener) !== -1;
+    return listeners[type] !== void 0 && listeners[type].indexOf(listener2) !== -1;
   }
-  removeEventListener(type, listener) {
+  removeEventListener(type, listener2) {
     if (this._listeners === void 0) return;
     const listeners = this._listeners;
     const listenerArray = listeners[type];
     if (listenerArray !== void 0) {
-      const index = listenerArray.indexOf(listener);
+      const index = listenerArray.indexOf(listener2);
       if (index !== -1) {
         listenerArray.splice(index, 1);
       }
@@ -21227,6 +21227,50 @@ class ImageBitmapLoader extends Loader {
     scope.manager.itemStart(url);
   }
 }
+let _context;
+class AudioContext {
+  static getContext() {
+    if (_context === void 0) {
+      _context = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return _context;
+  }
+  static setContext(value) {
+    _context = value;
+  }
+}
+class AudioLoader extends Loader {
+  constructor(manager) {
+    super(manager);
+  }
+  load(url, onLoad, onProgress, onError) {
+    const scope = this;
+    const loader3 = new FileLoader(this.manager);
+    loader3.setResponseType("arraybuffer");
+    loader3.setPath(this.path);
+    loader3.setRequestHeader(this.requestHeader);
+    loader3.setWithCredentials(this.withCredentials);
+    loader3.load(url, function(buffer) {
+      try {
+        const bufferCopy = buffer.slice(0);
+        const context = AudioContext.getContext();
+        context.decodeAudioData(bufferCopy, function(audioBuffer) {
+          onLoad(audioBuffer);
+        }).catch(handleError);
+      } catch (e) {
+        handleError(e);
+      }
+    }, onProgress, onError);
+    function handleError(e) {
+      if (onError) {
+        onError(e);
+      } else {
+        console.error(e);
+      }
+      scope.manager.itemError(url);
+    }
+  }
+}
 class Clock {
   constructor(autoStart = true) {
     this.autoStart = autoStart;
@@ -21267,6 +21311,297 @@ class Clock {
 }
 function now$1() {
   return performance.now();
+}
+const _position$1 = /* @__PURE__ */ new Vector3();
+const _quaternion$1 = /* @__PURE__ */ new Quaternion();
+const _scale$1 = /* @__PURE__ */ new Vector3();
+const _orientation$1 = /* @__PURE__ */ new Vector3();
+class AudioListener extends Object3D {
+  constructor() {
+    super();
+    this.type = "AudioListener";
+    this.context = AudioContext.getContext();
+    this.gain = this.context.createGain();
+    this.gain.connect(this.context.destination);
+    this.filter = null;
+    this.timeDelta = 0;
+    this._clock = new Clock();
+  }
+  getInput() {
+    return this.gain;
+  }
+  removeFilter() {
+    if (this.filter !== null) {
+      this.gain.disconnect(this.filter);
+      this.filter.disconnect(this.context.destination);
+      this.gain.connect(this.context.destination);
+      this.filter = null;
+    }
+    return this;
+  }
+  getFilter() {
+    return this.filter;
+  }
+  setFilter(value) {
+    if (this.filter !== null) {
+      this.gain.disconnect(this.filter);
+      this.filter.disconnect(this.context.destination);
+    } else {
+      this.gain.disconnect(this.context.destination);
+    }
+    this.filter = value;
+    this.gain.connect(this.filter);
+    this.filter.connect(this.context.destination);
+    return this;
+  }
+  getMasterVolume() {
+    return this.gain.gain.value;
+  }
+  setMasterVolume(value) {
+    this.gain.gain.setTargetAtTime(value, this.context.currentTime, 0.01);
+    return this;
+  }
+  updateMatrixWorld(force) {
+    super.updateMatrixWorld(force);
+    const listener2 = this.context.listener;
+    const up = this.up;
+    this.timeDelta = this._clock.getDelta();
+    this.matrixWorld.decompose(_position$1, _quaternion$1, _scale$1);
+    _orientation$1.set(0, 0, -1).applyQuaternion(_quaternion$1);
+    if (listener2.positionX) {
+      const endTime = this.context.currentTime + this.timeDelta;
+      listener2.positionX.linearRampToValueAtTime(_position$1.x, endTime);
+      listener2.positionY.linearRampToValueAtTime(_position$1.y, endTime);
+      listener2.positionZ.linearRampToValueAtTime(_position$1.z, endTime);
+      listener2.forwardX.linearRampToValueAtTime(_orientation$1.x, endTime);
+      listener2.forwardY.linearRampToValueAtTime(_orientation$1.y, endTime);
+      listener2.forwardZ.linearRampToValueAtTime(_orientation$1.z, endTime);
+      listener2.upX.linearRampToValueAtTime(up.x, endTime);
+      listener2.upY.linearRampToValueAtTime(up.y, endTime);
+      listener2.upZ.linearRampToValueAtTime(up.z, endTime);
+    } else {
+      listener2.setPosition(_position$1.x, _position$1.y, _position$1.z);
+      listener2.setOrientation(_orientation$1.x, _orientation$1.y, _orientation$1.z, up.x, up.y, up.z);
+    }
+  }
+}
+class Audio extends Object3D {
+  constructor(listener2) {
+    super();
+    this.type = "Audio";
+    this.listener = listener2;
+    this.context = listener2.context;
+    this.gain = this.context.createGain();
+    this.gain.connect(listener2.getInput());
+    this.autoplay = false;
+    this.buffer = null;
+    this.detune = 0;
+    this.loop = false;
+    this.loopStart = 0;
+    this.loopEnd = 0;
+    this.offset = 0;
+    this.duration = void 0;
+    this.playbackRate = 1;
+    this.isPlaying = false;
+    this.hasPlaybackControl = true;
+    this.source = null;
+    this.sourceType = "empty";
+    this._startedAt = 0;
+    this._progress = 0;
+    this._connected = false;
+    this.filters = [];
+  }
+  getOutput() {
+    return this.gain;
+  }
+  setNodeSource(audioNode) {
+    this.hasPlaybackControl = false;
+    this.sourceType = "audioNode";
+    this.source = audioNode;
+    this.connect();
+    return this;
+  }
+  setMediaElementSource(mediaElement) {
+    this.hasPlaybackControl = false;
+    this.sourceType = "mediaNode";
+    this.source = this.context.createMediaElementSource(mediaElement);
+    this.connect();
+    return this;
+  }
+  setMediaStreamSource(mediaStream) {
+    this.hasPlaybackControl = false;
+    this.sourceType = "mediaStreamNode";
+    this.source = this.context.createMediaStreamSource(mediaStream);
+    this.connect();
+    return this;
+  }
+  setBuffer(audioBuffer) {
+    this.buffer = audioBuffer;
+    this.sourceType = "buffer";
+    if (this.autoplay) this.play();
+    return this;
+  }
+  play(delay = 0) {
+    if (this.isPlaying === true) {
+      console.warn("THREE.Audio: Audio is already playing.");
+      return;
+    }
+    if (this.hasPlaybackControl === false) {
+      console.warn("THREE.Audio: this Audio has no playback control.");
+      return;
+    }
+    this._startedAt = this.context.currentTime + delay;
+    const source = this.context.createBufferSource();
+    source.buffer = this.buffer;
+    source.loop = this.loop;
+    source.loopStart = this.loopStart;
+    source.loopEnd = this.loopEnd;
+    source.onended = this.onEnded.bind(this);
+    source.start(this._startedAt, this._progress + this.offset, this.duration);
+    this.isPlaying = true;
+    this.source = source;
+    this.setDetune(this.detune);
+    this.setPlaybackRate(this.playbackRate);
+    return this.connect();
+  }
+  pause() {
+    if (this.hasPlaybackControl === false) {
+      console.warn("THREE.Audio: this Audio has no playback control.");
+      return;
+    }
+    if (this.isPlaying === true) {
+      this._progress += Math.max(this.context.currentTime - this._startedAt, 0) * this.playbackRate;
+      if (this.loop === true) {
+        this._progress = this._progress % (this.duration || this.buffer.duration);
+      }
+      this.source.stop();
+      this.source.onended = null;
+      this.isPlaying = false;
+    }
+    return this;
+  }
+  stop(delay = 0) {
+    if (this.hasPlaybackControl === false) {
+      console.warn("THREE.Audio: this Audio has no playback control.");
+      return;
+    }
+    this._progress = 0;
+    if (this.source !== null) {
+      this.source.stop(this.context.currentTime + delay);
+      this.source.onended = null;
+    }
+    this.isPlaying = false;
+    return this;
+  }
+  connect() {
+    if (this.filters.length > 0) {
+      this.source.connect(this.filters[0]);
+      for (let i = 1, l = this.filters.length; i < l; i++) {
+        this.filters[i - 1].connect(this.filters[i]);
+      }
+      this.filters[this.filters.length - 1].connect(this.getOutput());
+    } else {
+      this.source.connect(this.getOutput());
+    }
+    this._connected = true;
+    return this;
+  }
+  disconnect() {
+    if (this._connected === false) {
+      return;
+    }
+    if (this.filters.length > 0) {
+      this.source.disconnect(this.filters[0]);
+      for (let i = 1, l = this.filters.length; i < l; i++) {
+        this.filters[i - 1].disconnect(this.filters[i]);
+      }
+      this.filters[this.filters.length - 1].disconnect(this.getOutput());
+    } else {
+      this.source.disconnect(this.getOutput());
+    }
+    this._connected = false;
+    return this;
+  }
+  getFilters() {
+    return this.filters;
+  }
+  setFilters(value) {
+    if (!value) value = [];
+    if (this._connected === true) {
+      this.disconnect();
+      this.filters = value.slice();
+      this.connect();
+    } else {
+      this.filters = value.slice();
+    }
+    return this;
+  }
+  setDetune(value) {
+    this.detune = value;
+    if (this.isPlaying === true && this.source.detune !== void 0) {
+      this.source.detune.setTargetAtTime(this.detune, this.context.currentTime, 0.01);
+    }
+    return this;
+  }
+  getDetune() {
+    return this.detune;
+  }
+  getFilter() {
+    return this.getFilters()[0];
+  }
+  setFilter(filter) {
+    return this.setFilters(filter ? [filter] : []);
+  }
+  setPlaybackRate(value) {
+    if (this.hasPlaybackControl === false) {
+      console.warn("THREE.Audio: this Audio has no playback control.");
+      return;
+    }
+    this.playbackRate = value;
+    if (this.isPlaying === true) {
+      this.source.playbackRate.setTargetAtTime(this.playbackRate, this.context.currentTime, 0.01);
+    }
+    return this;
+  }
+  getPlaybackRate() {
+    return this.playbackRate;
+  }
+  onEnded() {
+    this.isPlaying = false;
+  }
+  getLoop() {
+    if (this.hasPlaybackControl === false) {
+      console.warn("THREE.Audio: this Audio has no playback control.");
+      return false;
+    }
+    return this.loop;
+  }
+  setLoop(value) {
+    if (this.hasPlaybackControl === false) {
+      console.warn("THREE.Audio: this Audio has no playback control.");
+      return;
+    }
+    this.loop = value;
+    if (this.isPlaying === true) {
+      this.source.loop = this.loop;
+    }
+    return this;
+  }
+  setLoopStart(value) {
+    this.loopStart = value;
+    return this;
+  }
+  setLoopEnd(value) {
+    this.loopEnd = value;
+    return this;
+  }
+  getVolume() {
+    return this.gain.gain.value;
+  }
+  setVolume(value) {
+    this.gain.gain.setTargetAtTime(value, this.context.currentTime, 0.01);
+    return this;
+  }
 }
 class PropertyMixer {
   constructor(binding, typeName, valueSize) {
@@ -22741,6 +23076,20 @@ class color {
       return "color not found";
     }
   }
+}
+function getColor(intersect2, texture2, sampleSize = 5) {
+  const uv = intersect2.uv;
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  canvas.width = texture2.image.width;
+  canvas.height = texture2.image.height;
+  context.drawImage(texture2.image, 0, 0);
+  const x2 = Math.floor(uv.x * canvas.width);
+  const y = Math.floor((1 - uv.y) * canvas.height);
+  const imageData = context.getImageData(x2, y, sampleSize, sampleSize);
+  const data = imageData.data;
+  console.log(data[0], data[1], data[2]);
+  return new color(data[0], data[1], data[2]);
 }
 var Easing = Object.freeze({
   Linear: Object.freeze({
@@ -31373,7 +31722,8 @@ class move_camera_with_color {
     let data = JSON.parse(JSON.stringify(json_file));
     let vector;
     let trad;
-    const sound = new Audio(sound_info);
+    const sound = new Audio(listener);
+    const audioLoader = new AudioLoader();
     switch (this.color.get_color()) {
       case "yellow":
         vector = { x: data.yellow.x, y: data.yellow.y, z: data.yellow.z };
@@ -31399,7 +31749,12 @@ class move_camera_with_color {
         console.error("Color not found");
         return new Error("Color not found");
     }
-    sound.play();
+    audioLoader.load(sound_info, function(buffer) {
+      sound.setBuffer(buffer);
+      sound.setLoop(false);
+      sound.setVolume(0.5);
+      sound.play();
+    });
     return new Tween(this.camera.position).to({ x: vector.x, y: vector.y, z: vector.z }, 2e3).easing(Easing.Quadratic.Out).onUpdate(() => {
       this.camera.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
       this.camera.lookAt(0, 0, 0);
@@ -32232,6 +32587,50 @@ function interceptControlUp(event) {
     document2.removeEventListener("keyup", this._interceptControlUp, { passive: true, capture: true });
   }
 }
+const en = {
+  intro: "Introduction",
+  content: "Click on start to display the brain and then you can click on the brain area to know more but before that, a small animation will launch",
+  button: "Start"
+};
+const fr = {
+  intro: "Introduction",
+  content: "Cliquez sur Commencer pour afficher le cerveau, et ensuite vous pouvez cliquer sur les zones du cerveau pour en savoir plus, mais avant cela, une petite animation va se lancer",
+  button: "Commencer"
+};
+const es = {
+  intro: "Introducción",
+  content: "Haz clic en comenzar para mostrar el cerebro y luego puedes hacer clic en la zona del cerebro para obtener más información pero antes de eso, se lanzará una pequeña animación",
+  button: "Comenzar"
+};
+const trad_intro = {
+  en,
+  fr,
+  es
+};
+function addlight(scene2) {
+  const rectLight1 = new RectAreaLight(16777215, 5, 5, 5);
+  rectLight1.position.set(0, 5, 0);
+  rectLight1.lookAt(0, 0, 0);
+  scene2.add(rectLight1);
+  const rectLight2 = new RectAreaLight(16777215, 5, 5, 5);
+  rectLight2.position.set(0, -5, 0);
+  rectLight2.lookAt(0, 0, 0);
+  scene2.add(rectLight2);
+  const rectLight3 = new RectAreaLight(16777215, 5, 5, 5);
+  rectLight3.position.set(5, 0, 0);
+  rectLight3.lookAt(0, 0, 0);
+  scene2.add(rectLight3);
+  const rectLight4 = new RectAreaLight(16777215, 5, 5, 5);
+  rectLight4.position.set(-5, 0, 0);
+  rectLight4.lookAt(0, 0, 0);
+  scene2.add(rectLight4);
+  const rectLight5 = new HemisphereLight(16777147, 526368, 3);
+  scene2.add(rectLight5);
+}
+const Death = "" + new URL("Death-BvZyCsa_.mp3", import.meta.url).href;
+const Chute = "" + new URL("Chute-BP9NI-y7.mp3", import.meta.url).href;
+const Damage = "" + new URL("Damage-BuRK0uhm.mp3", import.meta.url).href;
+const Dead_body_hitting = "" + new URL("Dead_body_hitting-DwdR7eNj.mp3", import.meta.url).href;
 function toTrianglesDrawMode(geometry2, drawMode) {
   if (drawMode === TrianglesDrawMode) {
     console.warn("THREE.BufferGeometryUtils.toTrianglesDrawMode(): Geometry already defined as triangles.");
@@ -34766,87 +35165,44 @@ function addPrimitiveAttributes(geometry2, primitiveDef, parser) {
     return primitiveDef.targets !== void 0 ? addMorphTargets(geometry2, primitiveDef.targets, parser) : geometry2;
   });
 }
-const en = {
-  intro: "Introduction",
-  content: "Click on start to display the brain and then you can click on the brain area to know more but before that, a small animation will launch",
-  button: "Start"
-};
-const fr = {
-  intro: "Introduction",
-  content: "Cliquez sur Commencer pour afficher le cerveau, et ensuite vous pouvez cliquer sur les zones du cerveau pour en savoir plus, mais avant cela, une petite animation va se lancer",
-  button: "Commencer"
-};
-const es = {
-  intro: "Introducción",
-  content: "Haz clic en comenzar para mostrar el cerebro y luego puedes hacer clic en la zona del cerebro para obtener más información pero antes de eso, se lanzará una pequeña animación",
-  button: "Comenzar"
-};
-const trad_intro = {
-  en,
-  fr,
-  es
-};
-const Death = "" + new URL("Death-BvZyCsa_.mp3", import.meta.url).href;
-const Damage = "" + new URL("Damage-BuRK0uhm.mp3", import.meta.url).href;
-const Chute = "" + new URL("Chute-BP9NI-y7.mp3", import.meta.url).href;
-const Dead_body_hitting = "" + new URL("Dead_body_hitting-DwdR7eNj.mp3", import.meta.url).href;
-{
-  console.log = function() {
-  };
-}
-const scene = new Scene();
-const aspect = window.innerWidth / window.innerHeight;
-const camera = new PerspectiveCamera(75, aspect, 0.1, 1e3);
-const rectLight1 = new RectAreaLight(16777215, 5, 5, 5);
-rectLight1.position.set(0, 5, 0);
-rectLight1.lookAt(0, 0, 0);
-scene.add(rectLight1);
-const rectLight2 = new RectAreaLight(16777215, 5, 5, 5);
-rectLight2.position.set(0, -5, 0);
-rectLight2.lookAt(0, 0, 0);
-scene.add(rectLight2);
-const rectLight3 = new RectAreaLight(16777215, 5, 5, 5);
-rectLight3.position.set(5, 0, 0);
-rectLight3.lookAt(0, 0, 0);
-scene.add(rectLight3);
-const rectLight4 = new RectAreaLight(16777215, 5, 5, 5);
-rectLight4.position.set(-5, 0, 0);
-rectLight4.lookAt(0, 0, 0);
-scene.add(rectLight4);
-const rectLight5 = new HemisphereLight(16777147, 526368, 3);
-scene.add(rectLight5);
-const raycaster = new Raycaster();
-const mouse = new Vector2();
-const renderer = new WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.listenToKeyEvents(window);
-const geometry = new BoxGeometry(1, 1, 1);
-const material = new MeshNormalMaterial();
-const loader2 = new TextureLoader();
-loader2.load("assets/ml-reseau-neurones.png", (texture2) => {
-  scene.background = texture2;
-});
 const loader = new GLTFLoader();
 let mixer_1;
 let mixer_2;
-function esteban_loader() {
+function load_model_texture() {
   return new Promise((resolve, reject) => {
-    loader.load("assets/models/animation_dying_5.glb", function(gltf) {
+    const modelPromise = new Promise((resolveModel, rejectModel) => {
+      loader.load("assets/models/animation_dying_5.glb", function(gltf) {
+        const model = gltf.scene;
+        const animations = gltf.animations;
+        mixer_1 = new AnimationMixer(model);
+        mixer_2 = new AnimationMixer(model);
+        scene.add(model);
+        resolveModel({ model, animations });
+      }, function(xhr) {
+        console.log(xhr.loaded / xhr.total * 100 + "% loaded");
+      }, function(error) {
+        console.error("An error happened", error);
+      });
+    });
+    const cameraPromise = new Promise((resolveCamera, rejectCamera) => {
       animation_camera.push(new move_camera_with_color(new color(0, 0, 0), camera, scene).move_with_position({
         x: 0,
         y: 10,
-        z: 15
+        z: 20
       }, 0));
-      const sound = new Audio(Death);
-      sound.play();
-      const model = gltf.scene;
-      const animations = gltf.animations;
-      mixer_1 = new AnimationMixer(model);
-      mixer_2 = new AnimationMixer(model);
-      const sound2 = new Audio(Chute);
-      const sound3 = new Audio(Dead_body_hitting);
+      resolveCamera();
+    });
+    Promise.all([modelPromise, cameraPromise]).then(([{ model, animations }]) => {
+      const sound = new Audio(listener);
+      const audioLoader = new AudioLoader();
+      audioLoader.load(Death, function(buffer) {
+        sound.setBuffer(buffer);
+        sound.setLoop(false);
+        sound.setVolume(0.5);
+        sound.play();
+      });
+      const sound2 = new Audio(listener);
+      const sound3 = new Audio(listener);
       mixer_1.addEventListener(
         "finished",
         () => {
@@ -34859,11 +35215,21 @@ function esteban_loader() {
       let soundPlayed = false;
       const checkAnimationStart = setInterval(() => {
         if (!soundPlayed && action.time > 2.3) {
-          sound2.play();
+          audioLoader.load(Chute, function(buffer) {
+            sound2.setBuffer(buffer);
+            sound2.setLoop(false);
+            sound2.setVolume(0.5);
+            sound2.play();
+          });
           soundPlayed = true;
         } else if (soundPlayed && action.time > 3.3) {
-          const sound4 = new Audio(Damage);
-          sound4.play();
+          const sound4 = new Audio(listener);
+          audioLoader.load(Damage, function(buffer) {
+            sound4.setBuffer(buffer);
+            sound4.setLoop(false);
+            sound4.setVolume(0.5);
+            sound4.play();
+          });
           clearInterval(checkAnimationStart);
         }
       }, 10);
@@ -34873,7 +35239,12 @@ function esteban_loader() {
       let soundPlayed2 = false;
       const checkAnimationStart2 = setInterval(() => {
         if (!soundPlayed2 && action2.time > 0.5) {
-          sound3.play();
+          audioLoader.load(Dead_body_hitting, function(buffer) {
+            sound3.setBuffer(buffer);
+            sound3.setLoop(false);
+            sound3.setVolume(0.5);
+            sound3.play();
+          });
           soundPlayed2 = true;
           clearInterval(checkAnimationStart2);
         }
@@ -34885,15 +35256,11 @@ function esteban_loader() {
       action2.loop = LoopOnce;
       action2.timeScale = 1.5;
       scene.add(model);
-    }, function(xhr) {
-      console.log(xhr.loaded / xhr.total * 100 + "% loaded");
-    }, function(error) {
-      console.error("An error happened", error);
     });
   });
 }
 function brain_loader() {
-  esteban_loader().then(() => {
+  load_model_texture().then(() => {
     loader.load("assets/models/brain_project.glb", function(gltf) {
       gltf.scene.traverse(function(child) {
         if (child.isMesh) {
@@ -34901,14 +35268,19 @@ function brain_loader() {
         }
       });
       scene.add(gltf.scene);
-      const sound = new Audio(sound_info);
+      const sound = new Audio(listener);
+      const audioLoader = new AudioLoader();
       animation_camera.push(new move_camera_with_color(new color(0, 0, 0), camera, scene).move_with_position({
         x: 0,
         y: 0,
         z: 3
       }, 0));
-      sound.volume = 0.1;
-      sound.play();
+      audioLoader.load(sound_info, function(buffer) {
+        sound.setBuffer(buffer);
+        sound.setLoop(false);
+        sound.setVolume(0.5);
+        sound.play();
+      });
     }, function(xhr) {
       console.log(xhr.loaded / xhr.total * 100 + "% loaded");
     }, function(error) {
@@ -34916,6 +35288,41 @@ function brain_loader() {
     });
   });
 }
+const textureLoader = new TextureLoader();
+const texture = textureLoader.load(
+  "assets/Brain_Texture.jpeg",
+  () => {
+    console.log("Texture loaded successfully:", texture);
+  },
+  void 0,
+  // Optional: onProgress function (can be left as undefined)
+  (error) => {
+    console.error("Error loading texture:", error);
+  }
+);
+const loader2 = new TextureLoader();
+loader2.load("assets/ml-reseau-neurones.png", (texture2) => {
+  scene.background = texture2;
+});
+{
+  console.log = function() {
+  };
+}
+const scene = new Scene();
+const aspect = window.innerWidth / window.innerHeight;
+const listener = new AudioListener();
+const camera = new PerspectiveCamera(75, aspect, 0.1, 1e3);
+camera.add(listener);
+addlight(scene);
+const raycaster = new Raycaster();
+const mouse = new Vector2();
+const renderer = new WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.listenToKeyEvents(window);
+const geometry = new BoxGeometry(1, 1, 1);
+const material = new MeshNormalMaterial();
 renderer.useLegacyLights = false;
 renderer.shadowMap.enabled = false;
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -34930,11 +35337,15 @@ renderer.domElement.addEventListener("mousedown", () => {
     intersect2 = raycast();
   }
   if (intersect2 && intersect2.object.isUI) {
+    controls.enabled = false;
     selectState = true;
     intersect2.object.setState("selected");
+  } else {
+    controls.enabled = true;
   }
 });
 renderer.domElement.addEventListener("mouseup", () => {
+  controls.enabled = true;
   selectState = false;
 });
 const arrowHelper = new ArrowHelper(new Vector3(), new Vector3(), 0.25, 16776960);
@@ -34955,32 +35366,6 @@ function onMouseMove(event) {
     arrowHelper.position.copy(intersects.point);
   }
 }
-function getColor(intersect2, texture2, sampleSize = 5) {
-  const uv = intersect2.uv;
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d");
-  canvas.width = texture2.image.width;
-  canvas.height = texture2.image.height;
-  context.drawImage(texture2.image, 0, 0);
-  const x2 = Math.floor(uv.x * canvas.width);
-  const y = Math.floor((1 - uv.y) * canvas.height);
-  const imageData = context.getImageData(x2, y, sampleSize, sampleSize);
-  const data = imageData.data;
-  console.log(data[0], data[1], data[2]);
-  return new color(data[0], data[1], data[2]);
-}
-const textureLoader = new TextureLoader();
-const texture = textureLoader.load(
-  "assets/Brain_Texture.jpeg",
-  () => {
-    console.log("Texture loaded successfully:", texture);
-  },
-  void 0,
-  // Optional: onProgress function (can be left as undefined)
-  (error) => {
-    console.error("Error loading texture:", error);
-  }
-);
 let animation_camera = [];
 let interface_text;
 function Click(event) {
@@ -35005,8 +35390,6 @@ function Click(event) {
       }
       animation_camera.push(move);
       console.log(`Couleur dominante à l'intersection : ${dominantColor}`);
-    } else {
-      console.error("L'objet n'a pas de texture");
     }
   }
 }
@@ -35094,4 +35477,4 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-//# sourceMappingURL=index-DIClgurP.js.map
+//# sourceMappingURL=index-Di1ci489.js.map
