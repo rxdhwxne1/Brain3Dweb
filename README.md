@@ -9,11 +9,11 @@ informations sur chaque partie.
 
 ### Mode d'emploi
 
-L'utilisateur peut naviguer dans le cerveau en cliquant sur les différentes parties du cerveau. Lorsqu'il clique sur une
+- L'utilisateur peut naviguer dans le cerveau en cliquant sur les différentes parties du cerveau. Lorsqu'il clique sur une
 partie, une fenêtre s'ouvre avec des informations sur cette partie.
-Il peut changer de langue en cliquant sur le bouton en haut à gauche de l'interface qui s'affiche en français par
+- Il peut changer de langue en cliquant sur le bouton en haut à gauche de l'interface qui s'affiche en français par
 défaut.
-Il peut cliquer sur le bouton en haut à droite pour lancer un tts qui lui donnera des informations sur la partie du
+- Il peut cliquer sur le bouton en haut à droite pour lancer un tts qui lui donnera des informations sur la partie du
 cerveau sur laquelle il a cliqué selon la langue choisie.
 
 ## Illustration
