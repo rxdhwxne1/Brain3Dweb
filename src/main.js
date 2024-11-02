@@ -29,7 +29,7 @@ if (env === 'production') {
     console.log = function () {
     }
 }
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 
 export const scene = new Scene();
 const aspect = window.innerWidth / window.innerHeight;
@@ -64,34 +64,10 @@ controls.enableDamping = true
 
 renderer.domElement.addEventListener('click', Click, false)
 
-if (isMobile) {
-    renderer.domElement.addEventListener('touchmove', onMove, false);
-} else {
-    renderer.domElement.addEventListener('mousemove', onMove, false);
-}
+renderer.domElement.addEventListener('mousemove', onMouseMove, false)
 
-
-const handleTouchStart = (event) => {
-    raycaster.setFromCamera(mouse, camera);
-    const intersect = raycast();
-
-    if (intersect && intersect.object.isUI) {
-        controls.enabled = false;
-        selectState = true;
-        intersect.object.setState('selected');
-    } else {
-        controls.enabled = true;
-    }
-};
-
-const handleEnd = () => {
-    controls.enabled = true;
-    selectState = false;
-};
-
-const handleMouseDown = (event) => {
+renderer.domElement.addEventListener('mousedown', () => {
     let intersect;
-
 
     if (mouse.x !== null && mouse.y !== null) {
 
@@ -108,37 +84,21 @@ const handleMouseDown = (event) => {
 
         controls.enabled = true;
     }
-};
 
+});
 
-if (isMobile) {
-    renderer.domElement.addEventListener('touchstart', handleTouchStart);
-    renderer.domElement.addEventListener('touchend', handleEnd);
-} else {
-    renderer.domElement.addEventListener('mousedown', handleMouseDown);
-    renderer.domElement.addEventListener('mouseup', handleEnd);
-}
+renderer.domElement.addEventListener('mouseup', () => {
+    controls.enabled = true;
+    selectState = false;
+});
 
 
 const arrowHelper = new ArrowHelper(new Vector3(), new Vector3(), .25, 0xffff00)
 scene.add(arrowHelper)
 const line = new Line(geometry, material)
 
-function onMove(event) {
-    let clientX, clientY;
-
-    if (isMobile && event.touches) {
-        clientX = event.touches[0].clientX;
-        clientY = event.touches[0].clientY;
-    } else {
-        clientX = event.clientX;
-        clientY = event.clientY;
-    }
-
-    mouse.set(
-        (clientX / renderer.domElement.clientWidth) * 2 - 1,
-        -(clientY / renderer.domElement.clientHeight) * 2 + 1
-    );
+function onMouseMove(event) {
+    mouse.set((event.clientX / renderer.domElement.clientWidth) * 2 - 1, -(event.clientY / renderer.domElement.clientHeight) * 2 + 1)
 
 
     raycaster.setFromCamera(mouse, camera)
