@@ -41,6 +41,7 @@ https://github.com/user-attachments/assets/a485a0bd-b3af-49da-89c3-2dfe8f896d87
   - Ajout d'un personnage animé
 
 - **Radhwane Namaoui**:
+  - Création de la scène 3D
   - Gestion des informations sur les différentes parties du cerveau,
   - Ajout des sons d'ambiance
   - Ajout de texture d'arrière-plan
