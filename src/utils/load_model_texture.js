@@ -1,5 +1,14 @@
 import {sceneMeshes} from "../interface.js";
-import {AnimationMixer, Audio, AudioLoader, LoopOnce, TextureLoader} from "three";
+import {
+    AnimationMixer,
+    Audio,
+    AudioLoader,
+    LoopOnce,
+    Mesh,
+    MeshBasicMaterial,
+    SphereGeometry,
+    TextureLoader
+} from "three";
 import {move_camera_with_color} from "./move_camera.js";
 import {color} from "./color.js";
 import sound_info from "../sounds/info.mp3";
@@ -15,10 +24,43 @@ const loader = new GLTFLoader();
 export let mixer_1;
 export let mixer_2
 
+let loadingIndicator;
+const bounceSpeed = 0.1;
+const colorChangeSpeed = 0.5;
+let colorHue = 0;
+
+function createLoadingIndicator() {
+    const geometry = new SphereGeometry(0.5, 32, 32);
+    const material = new MeshBasicMaterial({color: 0xffffff});
+    loadingIndicator = new Mesh(geometry, material);
+    loadingIndicator.position.set(0, 0, 4);
+    scene.add(loadingIndicator);
+
+    animateLoadingIndicator();
+}
+
+function animateLoadingIndicator() {
+    let bounceOffset = 0;
+
+    function animate() {
+        bounceOffset += bounceSpeed;
+        loadingIndicator.position.y = 15 + Math.abs(Math.sin(bounceOffset)) * 0.5;
+
+        colorHue = (colorHue + colorChangeSpeed) % 360;
+        loadingIndicator.material.color.setHSL(colorHue / 360, 1, 0.5);
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+}
+
+
 function load_model_texture() {
     const sound = new Audio(listener);
     const sound2 = new Audio(listener);
     const sound3 = new Audio(listener);
+    createLoadingIndicator();
     return new Promise((resolve, reject) => {
         const modelPromise = new Promise((resolveModel, rejectModel) => {
             loader.load('assets/models/animation_dying_6.glb', function (gltf) {
@@ -93,8 +135,14 @@ function load_model_texture() {
                 setTimeout(() => action2.play(), 900);
 
                 let soundPlayed2 = false;
+                let delete_done = false;
 
                 const checkAnimationStart2 = setInterval(() => {
+                    if (!delete_done) {
+                        scene.remove(loadingIndicator);
+                        delete_done = true;
+                    }
+
                     if (!soundPlayed2 && action2.time > 0.5) {
                         audioLoader.load(Dead_body_hitting, function (buffer) {
                             sound3.setBuffer(buffer);
