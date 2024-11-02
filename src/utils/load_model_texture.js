@@ -16,6 +16,9 @@ export let mixer_1;
 export let mixer_2
 
 function load_model_texture() {
+    const sound = new Audio(listener);
+    const sound2 = new Audio(listener);
+    const sound3 = new Audio(listener);
     return new Promise((resolve, reject) => {
         const modelPromise = new Promise((resolveModel, rejectModel) => {
             loader.load('assets/models/animation_dying_5.glb', function (gltf) {
@@ -44,7 +47,6 @@ function load_model_texture() {
         });
         Promise.all([modelPromise, cameraPromise]).then(([{model, animations}]) => {
             setTimeout(() => {
-                const sound = new Audio(listener);
                 const audioLoader = new AudioLoader();
                 audioLoader.load(Death, function (buffer) {
                     sound.setBuffer(buffer);
@@ -53,8 +55,6 @@ function load_model_texture() {
                     sound.play();
                 });
 
-                const sound2 = new Audio(listener);
-                const sound3 = new Audio(listener);
                 mixer_1.addEventListener('finished', () => {
                         sound2.pause();
                         scene.remove(model);
