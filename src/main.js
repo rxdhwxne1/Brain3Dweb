@@ -5,15 +5,25 @@ import {
     BoxGeometry,
     Clock,
     Line,
+    Mesh,
+    MeshBasicMaterial,
     MeshNormalMaterial,
     PerspectiveCamera,
     Raycaster,
+    RingGeometry,
     Scene,
     SRGBColorSpace,
     Vector2,
     Vector3,
     WebGLRenderer
 } from 'three';
+
+import {DevUI} from '@iwer/devui';
+import {metaQuest3, XRDevice} from 'iwer';
+
+// XR
+import {XRButton} from 'three/addons/webxr/XRButton.js';
+
 import {getColor} from "./utils/color.js";
 import {move_camera_with_color} from "./utils/move_camera.js";
 import ThreeMeshUI from 'three-mesh-ui';
@@ -23,12 +33,49 @@ import {button, Interface, sceneMeshes} from "./interface.js";
 import trad_intro from "./data/intro_interface.json" with {type: "json"};
 import {addlight} from "./utils/light.js";
 import {brain_loader, mixer_1, mixer_2, texture} from "./utils/load_model_texture.js";
+import VRControl from "./utils/VRControl.js";
 
 const env = import.meta.env.MODE; // 'development', 'production', 'test'
 if (env === 'production') {
     console.log = function () {
     }
 }
+
+async function setupXR(xrMode) {
+
+    if (xrMode !== 'immersive-vr') return;
+
+    // iwer setup: emulate vr session
+    let nativeWebXRSupport = false;
+    if (navigator.xr) {
+        nativeWebXRSupport = await navigator.xr.isSessionSupported(xrMode);
+    }
+
+    if (!nativeWebXRSupport) {
+        const xrDevice = new XRDevice(metaQuest3);
+        xrDevice.installRuntime();
+        xrDevice.fovy = (75 / 180) * Math.PI;
+        xrDevice.ipd = 0;
+        window.xrdevice = xrDevice;
+        xrDevice.controllers.right.position.set(0.15649, 1.43474, -0.38368);
+        xrDevice.controllers.right.quaternion.set(
+            0.14766305685043335,
+            0.02471366710960865,
+            -0.0037767395842820406,
+            0.9887216687202454,
+        );
+        xrDevice.controllers.left.position.set(-0.15649, 1.43474, -0.38368);
+        xrDevice.controllers.left.quaternion.set(
+            0.14766305685043335,
+            0.02471366710960865,
+            -0.0037767395842820406,
+            0.9887216687202454,
+        );
+        new DevUI(xrDevice);
+    }
+}
+
+await setupXR('immersive-ar');
 
 
 export const scene = new Scene();
@@ -44,12 +91,59 @@ addlight(scene);
 const raycaster = new Raycaster();
 const mouse = new Vector2();
 
-const renderer = new WebGLRenderer();
+const renderer = new WebGLRenderer({antialias: true, alpha: true});
 renderer.setSize(window.innerWidth, window.innerHeight);
+
+renderer.xr.enabled = true;
+
+
 document.body.appendChild(renderer.domElement);
 
+const xrButton = XRButton.createButton(renderer, {requiredFeatures: ['hit-test']});
+xrButton.style.backgroundColor = 'skyblue';
+document.body.appendChild(xrButton);
+
+
+let vrControl = VRControl(renderer, camera, scene);
+
+scene.add(vrControl.controllerGrips[0], vrControl.controllers[0]);
+
+export let lastCirclePosition = new Vector3();
+
+function onSelect() {
+    if (reticle.visible) {
+
+        reticle.matrix.decompose(lastCirclePosition, interface_1.container.quaternion, interface_1.container.scale);
+        interface_1.container.position.copy(lastCirclePosition);
+        interface_1.container.position.z -= 1;
+
+    }
+
+}
+
+vrControl.controllers[0].addEventListener('select', onSelect);
+
+vrControl.controllers[0].addEventListener('selectstart', () => {
+
+    selectState = true;
+
+});
+vrControl.controllers[0].addEventListener('selectend', () => {
+
+    selectState = false;
+
+});
+
+let reticle = new Mesh(
+    new RingGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2),
+    new MeshBasicMaterial()
+);
+reticle.matrixAutoUpdate = false;
+reticle.visible = false;
+scene.add(reticle);
+
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.listenToKeyEvents(window); // optional
+controls.listenToKeyEvents(window);
 
 const geometry = new BoxGeometry(1, 1, 1);
 const material = new MeshNormalMaterial();
@@ -158,9 +252,17 @@ function Click(event) {
 renderer.outputEncoding = SRGBColorSpace;
 
 
-new Interface({
+const interface_1 = new Interface({
     x: camera.position.x, y: camera.position.y, z: camera.position.z + 1.6
 }, scene, JSON.parse(JSON.stringify(trad_intro)), brain_loader);
+
+
+function updateInterfacePosition() {
+    console.log("update interface position");
+    const camera = renderer.xr.getCamera();
+    interface_1.container.position.set(camera.position.x, camera.position.y, camera.position.z - 2);
+    interface_1.container.lookAt(camera.position);
+}
 
 
 camera.position.z = 3;
@@ -173,7 +275,16 @@ let selectState = false;
 function updateButtons() {
     let intersect;
 
-    if (mouse.x !== null && mouse.y !== null) {
+    if (renderer.xr.isPresenting) {
+
+        vrControl.setFromController(0, raycaster.ray);
+
+        intersect = raycast();
+
+        // Position the little white dot at the end of the controller pointing ray
+        if (intersect) vrControl.setPointerAt(0, intersect.point);
+
+    } else if (mouse.x !== null && mouse.y !== null) {
 
         raycaster.setFromCamera(mouse, camera);
 
@@ -245,11 +356,61 @@ function raycast(func = button) {
 }
 
 let lastElapsedTime = 0
+let hitTestSource = null;
+let hitTestSourceRequested = false;
+
+function animate(timestamp, frame) {
+    if (frame) {
+        const referenceSpace = renderer.xr.getReferenceSpace();
+        const session = renderer.xr.getSession();
+
+        if (hitTestSourceRequested === false) {
+
+            session.requestReferenceSpace('viewer').then(function (referenceSpace) {
+
+                session.requestHitTestSource({space: referenceSpace}).then(function (source) {
+
+                    hitTestSource = source;
+
+                });
+
+            });
+
+            session.addEventListener('end', function () {
+
+                hitTestSourceRequested = false;
+                hitTestSource = null;
+
+            });
+
+            hitTestSourceRequested = true;
+
+        }
+
+        if (hitTestSource) {
+            console.log("hit test", hitTestSource);
+            const hitTestResults = frame.getHitTestResults(hitTestSource);
+            console.log(hitTestResults);
+            if (hitTestResults.length) {
+
+                const hit = hitTestResults[0];
+
+                reticle.visible = true;
+                reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
+
+            } else {
+
+                reticle.visible = false;
+
+            }
+
+        }
+
+    }
+}
 
 
-const animation = () => {
-
-    renderer.setAnimationLoop(animation);
+const animation = (timestamp, frame) => {
     try {
         ThreeMeshUI.update();
     } catch (e) {
@@ -269,6 +430,10 @@ const animation = () => {
             }
         });
     }
+    // if (renderer.xr.isPresenting) {
+    //     updateInterfacePosition();
+    // }
+
     updateButtons();
 
     if (mixer_1) {
@@ -277,12 +442,12 @@ const animation = () => {
     if (mixer_2) {
         mixer_2.update(deltaTime)
     }
-
+    animate(timestamp, frame);
     renderer.render(scene, camera);
 };
 
-animation();
-
+renderer.setAnimationLoop(animation);
+renderer.render(scene, camera);
 window.addEventListener('resize', onWindowResize, false);
 
 function onWindowResize() {

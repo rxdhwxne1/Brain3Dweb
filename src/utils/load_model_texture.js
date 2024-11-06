@@ -16,7 +16,7 @@ import Death from "../sounds/Death.mp3";
 import Chute from "../sounds/Chute.mp3";
 import Damage from "../sounds/Damage.mp3";
 import Dead_body_hitting from "../sounds/Dead_body_hitting.mp3";
-import {animation_camera, camera, listener, scene} from "../main.js";
+import {animation_camera, camera, lastCirclePosition, listener, scene} from "../main.js";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 
 
@@ -69,6 +69,11 @@ function load_model_texture() {
 
                 mixer_1 = new AnimationMixer(model);
                 mixer_2 = new AnimationMixer(model);
+                if (lastCirclePosition) {
+                    model.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
+                    model.scale.set(0.5, 0.5, 0.5);
+                }
+
 
                 scene.add(model);
                 resolveModel({model, animations});
@@ -183,6 +188,10 @@ export function brain_loader() {
                     sceneMeshes.push(child);
                 }
             });
+            if (lastCirclePosition) {
+                gltf.scene.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
+                gltf.scene.scale.set(0.5, 0.5, 0.5);
+            }
             scene.add(gltf.scene);
             const sound = new Audio(listener);
             const audioLoader = new AudioLoader();
@@ -217,7 +226,8 @@ export const texture = textureLoader.load('assets/Brain_Texture.jpeg', () => {
         console.error('Error loading texture:', error); // Log any loading error
     });
 
-const loader2 = new TextureLoader();
-loader2.load('assets/ml-reseau-neurones.png', (texture) => {
-    scene.background = texture;
-});
+
+//const loader2 = new TextureLoader();
+//loader2.load('assets/ml-reseau-neurones.png', (texture) => {
+//    scene.background = texture;
+//});
