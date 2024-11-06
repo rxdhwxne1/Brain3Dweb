@@ -12,11 +12,20 @@ import {
     SRGBColorSpace,
     Vector2,
     Vector3,
-    WebGLRenderer
+    WebGLRenderer,
+    AmbientLight,
+    Color,
+    CylinderGeometry,
+    HemisphereLight,
+    Mesh,
+    MeshPhongMaterial,
+    MeshBasicMaterial
 } from 'three';
 import {getColor} from "./utils/color.js";
 import {move_camera_with_color} from "./utils/move_camera.js";
 import ThreeMeshUI from 'three-mesh-ui';
+import { XRButton } from 'three/addons/webxr/XRButton.js';
+import { RingGeometry, Matrix4 } from 'three';
 
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {button, Interface, sceneMeshes} from "./interface.js";
@@ -24,19 +33,20 @@ import trad_intro from "./data/intro_interface.json" with {type: "json"};
 import {addlight} from "./utils/light.js";
 import {brain_loader, mixer_1, mixer_2, texture} from "./utils/load_model_texture.js";
 
-const env = import.meta.env.MODE; // 'development', 'production', 'test'
-if (env === 'production') {
-    console.log = function () {
-    }
-}
+// XR Emulator
+import { DevUI } from '@iwer/devui';
+import { XRDevice, metaQuest3 } from 'iwer';
 
+  
+import {
+    GLTFLoader
+} from 'three/addons/loaders/GLTFLoader.js';
 
 export const scene = new Scene();
 const aspect = window.innerWidth / window.innerHeight;
 export const listener = new AudioListener();
 export const camera = new PerspectiveCamera(75, aspect, 0.1, 1000);
 camera.add(listener);
-
 
 addlight(scene);
 
@@ -45,8 +55,116 @@ const raycaster = new Raycaster();
 const mouse = new Vector2();
 
 const renderer = new WebGLRenderer();
+renderer.xr.enabled = true;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+
+document.body.appendChild(XRButton.createButton(renderer, { requiredFeatures: ['hit-test'] }));
+
+let reticle, hitTestSource = null, hitTestSourceRequested = false;
+
+reticle = new Mesh(
+    new RingGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2),
+    new MeshBasicMaterial({ color: 0xffffff })
+);
+reticle.matrixAutoUpdate = false;
+reticle.visible = false;
+scene.add(reticle);
+
+async function setupXR(xrMode) {
+    if (xrMode === 'immersive-vr' || xrMode === 'immersive-ar') {
+        let nativeWebXRSupport = false;
+        if (navigator.xr) {
+            nativeWebXRSupport = await navigator.xr.isSessionSupported(xrMode);
+        }
+
+        if (!nativeWebXRSupport) {
+            const xrDevice = new XRDevice(metaQuest3);
+            xrDevice.installRuntime();
+            xrDevice.fovy = (75 / 180) * Math.PI;
+            xrDevice.ipd = 0;
+            window.xrdevice = xrDevice;
+            xrDevice.controllers.right.position.set(0.15649, 1.43474, -0.38368);
+            xrDevice.controllers.right.quaternion.set(
+                0.14766305685043335,
+                0.02471366710960865,
+                -0.0037767395842820406,
+                0.9887216687202454,
+            );
+            xrDevice.controllers.left.position.set(-0.15649, 1.43474, -0.38368);
+            xrDevice.controllers.left.quaternion.set(
+                0.14766305685043335,
+                0.02471366710960865,
+                -0.0037767395842820406,
+                0.9887216687202454,
+            );
+            new DevUI(xrDevice);
+        }
+        if (renderer.xr.isPresenting) {
+            camera.position.set(0, 1.6, 0);
+        }
+    }
+}
+
+await setupXR('immersive-vr');
+
+async function setupXRSession(session) {
+    const referenceSpace = await session.requestReferenceSpace('viewer');
+    hitTestSource = await session.requestHitTestSource({ space: referenceSpace });
+
+    session.addEventListener('end', () => {
+        hitTestSourceRequested = false;
+        hitTestSource = null;
+    });
+
+    hitTestSourceRequested = true;
+}
+
+const env = import.meta.env.MODE; // 'development', 'production', 'test'
+if (env === 'production') {
+    console.log = function () {
+    }
+}
+
+function animate(timestamp, frame) {
+    if (frame && hitTestSource) {
+        const referenceSpace = renderer.xr.getReferenceSpace();
+        const hitTestResults = frame.getHitTestResults(hitTestSource);
+
+        if (hitTestResults.length > 0) {
+            const hit = hitTestResults[0];
+            reticle.visible = true;
+            reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
+        } else {
+            reticle.visible = false;
+        }
+    }
+
+    renderer.render(scene, camera);
+}
+
+// Lancer la session XR si elle n'est pas déjà configurée
+renderer.xr.addEventListener('sessionstart', async (event) => {
+    if (!hitTestSourceRequested) {
+        await setupXRSession(event.target.getSession());
+    }
+});
+
+// Ajouter une interaction de sélection
+const controller = renderer.xr.getController(0);
+controller.addEventListener('select', () => {
+    if (reticle.visible) {
+        const geometry = new CylinderGeometry(0.1, 0.1, 0.2, 32).translate(0, 0.1, 0);
+        const material = new MeshPhongMaterial({ color: Math.random() * 0xffffff });
+        const mesh = new Mesh(geometry, material);
+        reticle.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+        scene.add(mesh);
+    }
+});
+scene.add(controller);
+
+// Démarrage de la boucle d'animation
+renderer.setAnimationLoop(animate);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.listenToKeyEvents(window); // optional
@@ -62,7 +180,7 @@ document.body.appendChild(renderer.domElement)
 
 controls.enableDamping = true
 
-renderer.domElement.addEventListener('click', Click, false)
+renderer.domElement.addEventListener('onEventStart', onEventStart, false)
 
 renderer.domElement.addEventListener('mousemove', onMouseMove, false)
 
@@ -124,35 +242,66 @@ export let animation_camera = []
 let interface_text;
 
 
-function Click(event) {
-    mouse.set((event.clientX / renderer.domElement.clientWidth) * 2 - 1, -(event.clientY / renderer.domElement.clientHeight) * 2 + 1);
-    raycaster.setFromCamera(mouse, camera);
+function onEventStart(event) {
+    let intersect;
 
-    const intersects = raycast(sceneMeshes);
+    // En mode XR, utiliser les contrôleurs si disponibles
+    if (renderer.xr.isPresenting) {
+        const session = renderer.xr.getSession();
+        const inputSources = session.inputSources;
 
-    if (intersects) {
-        const intersect = intersects;
-        const object = intersect.object;
+        // Parcourir les sources d'entrée pour détecter les contrôleurs
+        inputSources.forEach((inputSource) => {
+            if (inputSource.targetRaySpace) {
+                const controller = renderer.xr.getController(inputSource.handedness === 'right' ? 0 : 1);
 
-        if (object.material.map) {
-            animation_camera = [];
-            const dominantColor = getColor(intersect, texture);
-            console.log("couleur dominante: ", dominantColor);
-            console.log("camera position: ", camera.position);
-            interface_text = new move_camera_with_color(dominantColor, camera, scene);
-            let move;
-            try {
-                move = interface_text.move_to();
-            } catch (e) {
-                console.error("Error in animation");
-                return;
+                // Utiliser la position du contrôleur pour le raycast
+                raycaster.set(controller.position, controller.getWorldDirection(new Vector3()));
+
+                intersect = raycast(sceneMeshes);
+                if (intersect) handleCameraMovement(intersect);
             }
-            animation_camera.push(move);
-            console.log(`Couleur dominante à l'intersection : ${dominantColor}`);
-        }
+        });
+    } else {
+        // En mode non-XR, utiliser la position de la souris
+        mouse.set(
+            (event.clientX / renderer.domElement.clientWidth) * 2 - 1,
+            -(event.clientY / renderer.domElement.clientHeight) * 2 + 1
+        );
+        raycaster.setFromCamera(mouse, camera);
+
+        intersect = raycast(sceneMeshes);
+        if (intersect) handleCameraMovement(intersect);
     }
 }
 
+// Fonction pour gérer le mouvement de la caméra en fonction de l'objet sélectionné
+function handleCameraMovement(intersect) {
+    const object = intersect.object;
+
+    // Si l'objet a une texture, commencer le mouvement de la caméra
+    if (object.material.map) {
+        animation_camera = [];
+        const dominantColor = getColor(intersect, texture);
+        console.log("Couleur dominante : ", dominantColor);
+        console.log("Position de la caméra : ", camera.position);
+
+        interface_text = new move_camera_with_color(dominantColor, camera, scene);
+
+        let move;
+        try {
+            move = interface_text.move_to();
+        } catch (e) {
+            console.error("Erreur dans l'animation");
+            return;
+        }
+
+        animation_camera.push(move);
+        console.log(`Couleur dominante à l'intersection : ${dominantColor}`);
+    }
+}
+
+renderer.domElement.addEventListener('pointerdown', onEventStart, false);
 
 // Renderer color space setting
 renderer.outputEncoding = SRGBColorSpace;
