@@ -118,6 +118,8 @@ renderer.xr.addEventListener('sessionend', () => {
     loader2.load('assets/ml-reseau-neurones.png', (texture) => {
         scene.background = texture;
     });
+    begin = false;
+    model_loader["brain"].position.set(0, 0, 0);
 });
 
 
