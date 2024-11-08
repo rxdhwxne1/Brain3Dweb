@@ -16,13 +16,14 @@ import Death from "../sounds/Death.mp3";
 import Chute from "../sounds/Chute.mp3";
 import Damage from "../sounds/Damage.mp3";
 import Dead_body_hitting from "../sounds/Dead_body_hitting.mp3";
-import {animation_camera, camera, listener, scene} from "../main.js";
+import {animation_camera, camera, group, lastCirclePosition, listener, renderer, scene} from "../main.js";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 
 
 const loader = new GLTFLoader();
 export let mixer_1;
 export let mixer_2
+export let model_loader = {};
 
 let loadingIndicator;
 const bounceSpeed = 0.1;
@@ -69,6 +70,12 @@ function load_model_texture() {
 
                 mixer_1 = new AnimationMixer(model);
                 mixer_2 = new AnimationMixer(model);
+                if (lastCirclePosition && renderer.xr.isPresenting) {
+                    model.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
+                    model.scale.set(0.08, 0.08, 0.08);
+
+                }
+                model_loader["animation_dying"] = model;
 
                 scene.add(model);
                 resolveModel({model, animations});
@@ -175,6 +182,7 @@ function load_model_texture() {
 }
 
 export function brain_loader() {
+
     load_model_texture(scene, loader, camera).then(() => {
 
         loader.load('assets/models/brain_project.glb', function (gltf) {
@@ -183,7 +191,13 @@ export function brain_loader() {
                     sceneMeshes.push(child);
                 }
             });
-            scene.add(gltf.scene);
+            if (lastCirclePosition && renderer.xr.isPresenting) {
+                gltf.scene.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
+                gltf.scene.scale.set(0.5, 0.5, 0.5);
+            }
+            model_loader["brain"] = gltf.scene;
+            group.add(gltf.scene);
+
             const sound = new Audio(listener);
             const audioLoader = new AudioLoader();
             animation_camera.push(new move_camera_with_color(new color(0, 0, 0), camera, scene).move_with_position({
@@ -217,7 +231,8 @@ export const texture = textureLoader.load('assets/Brain_Texture.jpeg', () => {
         console.error('Error loading texture:', error); // Log any loading error
     });
 
-const loader2 = new TextureLoader();
-loader2.load('assets/ml-reseau-neurones.png', (texture) => {
-    scene.background = texture;
-});
+
+//const loader2 = new TextureLoader();
+//loader2.load('assets/ml-reseau-neurones.png', (texture) => {
+//    scene.background = texture;
+//});

@@ -1,8 +1,18 @@
 "use strict";
 import ThreeMeshUI from "three-mesh-ui";
-import {BoxGeometry, Color, DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader} from "three";
+import {
+    BoxGeometry,
+    Color,
+    DoubleSide,
+    Mesh,
+    MeshBasicMaterial,
+    MeshStandardMaterial,
+    PlaneGeometry,
+    TextureLoader
+} from "three";
 import FontJSON from "./assets/NotoSans-Italic-VariableFont_wdth,wght-msdf.json" with {type: "json"};
 import FontImage from "./assets/NotoSans-Italic-VariableFontwdthwght.png";
+import {interface_intro} from "./main.js";
 
 
 export let button = []
@@ -42,12 +52,12 @@ export class Interface {
             plane_save = null;
         }
         const geometry = new BoxGeometry(0.82, 1.32, 0.1);
-        const material = new MeshBasicMaterial({
+        const material = new MeshStandardMaterial({
             color: 0x000000,
             side: DoubleSide,
             transparent: true,
             opacity: 0,
-            visible: false
+            visible: false,
         });
         const plane = new Mesh(geometry, material);
         plane.position.set(0, 0, 0);
@@ -137,7 +147,7 @@ export class Interface {
                         sceneMeshes = sceneMeshes.filter((item) => item !== plane_save);
                         plane_save = null;
                     }
-                    this.scene.remove(this.container);
+                    this.scene.remove(interface_intro.container);
                     this.brain_loader();
                     button = [];
                 }
