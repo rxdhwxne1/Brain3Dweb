@@ -182,6 +182,7 @@ function load_model_texture() {
 }
 
 export function brain_loader() {
+
     load_model_texture(scene, loader, camera).then(() => {
 
         loader.load('assets/models/brain_project.glb', function (gltf) {

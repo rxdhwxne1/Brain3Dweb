@@ -7,7 +7,7 @@ import {Interface} from "../interface.js";
 import brain_info from "../data/brain_lobes_info.json" with {type: "json"};
 import {Audio, AudioLoader, Vector3} from "three";
 import sound_info from "../sounds/info.mp3";
-import {animation_camera, listener, renderer} from "../main.js";
+import {animation_camera, group, listener, renderer} from "../main.js";
 import {model_loader} from "./load_model_texture.js";
 
 let infoPanel = null;
@@ -101,6 +101,7 @@ class move_camera_with_color {
                 if (infoPanel) {
                     console.log("remove info panel");
                     this.scene.remove(infoPanel.container);
+                    group.remove(infoPanel.container);
                     infoPanel = null;
                 }
                 infoPanel = new Interface(interfacePosition, this.scene, JSON.parse(JSON.stringify(trad)));
@@ -109,6 +110,7 @@ class move_camera_with_color {
                 } else {
                     infoPanel.container.lookAt(this.camera.position);
                 }
+                group.add(infoPanel.container);
                 animation_camera.push(this.move_with_rotation(infoPanel.container.rotation));
                 model_loader["infoPanel"] = infoPanel.container;
                 this.camera.getWorldDirection(cameraDirection);

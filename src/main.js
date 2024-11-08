@@ -87,7 +87,7 @@ export const camera = new PerspectiveCamera(75, aspect, 0.1, 1000);
 const intersected = [];
 camera.add(listener);
 
-export const group = new Group();
+export let group = new Group();
 scene.add(group);
 
 addlight(scene);
@@ -119,8 +119,8 @@ let begin = false;
 function onSelect() {
     if (reticle.visible && !begin) {
 
-        reticle.matrix.decompose(lastCirclePosition, interface_1.container.quaternion, interface_1.container.scale);
-        interface_1.container.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
+        reticle.matrix.decompose(lastCirclePosition, interface_intro.container.quaternion, interface_intro.container.scale);
+        interface_intro.container.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
         for (const [key, value] of Object.entries(model_loader)) {
             if (key === "brain") {
                 value.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
@@ -299,13 +299,12 @@ function Click(event) {
 renderer.outputEncoding = SRGBColorSpace;
 
 
-const interface_1 = new Interface({
+export let interface_intro = new Interface({
     x: camera.position.x, y: camera.position.y, z: camera.position.z + 1.6
 }, scene, JSON.parse(JSON.stringify(trad_intro)), brain_loader);
 
-
 function onSelectStart(event) {
-
+    console.log(scene.children);
     const controller = event.target;
 
     const intersections = getIntersections(controller);
@@ -315,10 +314,15 @@ function onSelectStart(event) {
         const intersection = intersections[0];
         let object = intersection.object
 
-        // detecter si l'object c'est le cerveau
+
         if (object.name.includes("Brain")) {
             object = model_loader["brain"];
+        } else {
+            while (object.parent && object.parent.type !== "Group") {
+                object = object.parent;
+            }
         }
+
 
         // Vérifie si l'objet a une propriété emissive pour pouvoir le modifier
         if (object.material && object.material.emissive) {
@@ -344,6 +348,7 @@ function onSelectEnd(event) {
         if (object.material && object.material.emissive) {
             object.material.emissive.b = 0;
         }
+
 
         group.attach(object);
 
@@ -400,7 +405,8 @@ function cleanIntersected() {
     while (intersected.length) {
 
         const object = intersected.pop();
-        object.material.emissive.r = 0;
+        if (object.material && object.material.emissive)
+            object.material.emissive.r = 0;
 
     }
 
@@ -586,6 +592,7 @@ const animation = (timestamp, frame) => {
     // }
 
     updateButtons();
+
 
     if (mixer_1) {
         mixer_1.update(deltaTime)

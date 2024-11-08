@@ -12,6 +12,7 @@ import {
 } from "three";
 import FontJSON from "./assets/NotoSans-Italic-VariableFont_wdth,wght-msdf.json" with {type: "json"};
 import FontImage from "./assets/NotoSans-Italic-VariableFontwdthwght.png";
+import {interface_intro} from "./main.js";
 
 
 export let button = []
@@ -146,7 +147,7 @@ export class Interface {
                         sceneMeshes = sceneMeshes.filter((item) => item !== plane_save);
                         plane_save = null;
                     }
-                    this.scene.remove(this.container);
+                    this.scene.remove(interface_intro.container);
                     this.brain_loader();
                     button = [];
                 }
