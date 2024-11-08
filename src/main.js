@@ -127,7 +127,7 @@ renderer.xr.addEventListener('sessionend', () => {
             z: 3
         }, 0));
     } else {
-        camera.lookAt(interface_intro.container.position);
+        camera.position.set(0, 0, 3);
     }
 });
 
