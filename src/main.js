@@ -15,6 +15,7 @@ import {
     RingGeometry,
     Scene,
     SRGBColorSpace,
+    TextureLoader,
     Vector2,
     Vector3,
     WebGLRenderer,
@@ -77,7 +78,14 @@ async function setupXR(xrMode) {
     }
 }
 
-await setupXR('immersive-ar');
+async function init() {
+    await setupXR('immersive-ar');
+}
+
+
+init().then(() => {
+    console.log('ar setup done')
+});
 
 
 export const scene = new Scene();
@@ -100,6 +108,17 @@ export const renderer = new WebGLRenderer({antialias: true, alpha: true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 renderer.xr.enabled = true;
+
+renderer.xr.addEventListener('sessionstart', () => {
+    scene.background = null; // Supprime l'arrière-plan
+});
+
+renderer.xr.addEventListener('sessionend', () => {
+    const loader2 = new TextureLoader();
+    loader2.load('assets/ml-reseau-neurones.png', (texture) => {
+        scene.background = texture;
+    });
+});
 
 
 document.body.appendChild(renderer.domElement);

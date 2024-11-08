@@ -232,7 +232,7 @@ export const texture = textureLoader.load('assets/Brain_Texture.jpeg', () => {
     });
 
 
-//const loader2 = new TextureLoader();
-//loader2.load('assets/ml-reseau-neurones.png', (texture) => {
-//    scene.background = texture;
-//});
+const loader2 = new TextureLoader();
+loader2.load('assets/ml-reseau-neurones.png', (texture) => {
+    scene.background = texture;
+});
