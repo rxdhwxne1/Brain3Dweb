@@ -19,6 +19,7 @@ export let button = []
 let save_language = 'fr';
 let plane_save = null;
 export let sceneMeshes = [];
+export let click_begin = false;
 
 export class Interface {
     constructor(position, scene, getTranslations, brain_loader) {
@@ -147,6 +148,7 @@ export class Interface {
                         sceneMeshes = sceneMeshes.filter((item) => item !== plane_save);
                         plane_save = null;
                     }
+                    click_begin = true;
                     this.scene.remove(interface_intro.container);
                     this.brain_loader();
                     button = [];

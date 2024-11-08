@@ -32,7 +32,7 @@ import {move_camera_with_color} from "./utils/move_camera.js";
 import ThreeMeshUI from 'three-mesh-ui';
 
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import {button, Interface, sceneMeshes} from "./interface.js";
+import {button, click_begin, Interface, sceneMeshes} from "./interface.js";
 import trad_intro from "./data/intro_interface.json" with {type: "json"};
 import {addlight} from "./utils/light.js";
 import {brain_loader, mixer_1, mixer_2, model_loader, texture} from "./utils/load_model_texture.js";
@@ -120,11 +120,13 @@ renderer.xr.addEventListener('sessionend', () => {
     });
     begin = false;
     model_loader["brain"].position.set(0, 0, 0);
-    animation_camera.push(new move_camera_with_color(new color(0, 0, 0), camera, scene).move_with_position({
-        x: 0,
-        y: 0,
-        z: 3
-    }, 0));
+    if (click_begin) {
+        animation_camera.push(new move_camera_with_color(new color(0, 0, 0), camera, scene).move_with_position({
+            x: 0,
+            y: 0,
+            z: 3
+        }, 0));
+    }
 });
 
 
