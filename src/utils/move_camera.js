@@ -8,6 +8,7 @@ import brain_info from "../data/brain_lobes_info.json" with {type: "json"};
 import {Audio, AudioLoader, Vector3} from "three";
 import sound_info from "../sounds/info.mp3";
 import {animation_camera, listener, renderer} from "../main.js";
+import {model_loader} from "./load_model_texture.js";
 
 let infoPanel = null;
 
@@ -81,12 +82,21 @@ class move_camera_with_color {
 
                 let distanceFromCamera = 0.9;
                 let leftOffset = 0.7;
+                let interfacePosition;
+                if (renderer.xr.isPresenting) {
+                    interfacePosition = {
+                        x: model_loader["brain"].position.x + cameraDirection.x * distanceFromCamera - rightVector.x * leftOffset,
+                        y: model_loader["brain"].position.y + cameraDirection.y * distanceFromCamera - rightVector.y * leftOffset,
+                        z: model_loader["brain"].position.z + cameraDirection.z * distanceFromCamera - rightVector.z * leftOffset
+                    };
+                } else {
+                    interfacePosition = {
+                        x: this.camera.position.x + cameraDirection.x * distanceFromCamera - rightVector.x * leftOffset,
+                        y: this.camera.position.y + cameraDirection.y * distanceFromCamera - rightVector.y * leftOffset,
+                        z: this.camera.position.z + cameraDirection.z * distanceFromCamera - rightVector.z * leftOffset
+                    };
+                }
 
-                let interfacePosition = {
-                    x: this.camera.position.x + cameraDirection.x * distanceFromCamera - rightVector.x * leftOffset,
-                    y: this.camera.position.y + cameraDirection.y * distanceFromCamera - rightVector.y * leftOffset,
-                    z: this.camera.position.z + cameraDirection.z * distanceFromCamera - rightVector.z * leftOffset
-                };
 
                 if (infoPanel) {
                     console.log("remove info panel");
@@ -94,8 +104,13 @@ class move_camera_with_color {
                     infoPanel = null;
                 }
                 infoPanel = new Interface(interfacePosition, this.scene, JSON.parse(JSON.stringify(trad)));
-                infoPanel.container.lookAt(this.camera.position);
+                if (renderer.xr.isPresenting) {
+                    infoPanel.container.lookAt(renderer.xr.getCamera().position);
+                } else {
+                    infoPanel.container.lookAt(this.camera.position);
+                }
                 animation_camera.push(this.move_with_rotation(infoPanel.container.rotation));
+                model_loader["infoPanel"] = infoPanel.container;
                 this.camera.getWorldDirection(cameraDirection);
                 distanceFromCamera = -0.2;
                 animation_camera.push(this.move_with_position({

@@ -16,7 +16,7 @@ import Death from "../sounds/Death.mp3";
 import Chute from "../sounds/Chute.mp3";
 import Damage from "../sounds/Damage.mp3";
 import Dead_body_hitting from "../sounds/Dead_body_hitting.mp3";
-import {animation_camera, camera, lastCirclePosition, listener, scene} from "../main.js";
+import {animation_camera, camera, group, lastCirclePosition, listener, renderer, scene} from "../main.js";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 
 
@@ -70,9 +70,9 @@ function load_model_texture() {
 
                 mixer_1 = new AnimationMixer(model);
                 mixer_2 = new AnimationMixer(model);
-                if (lastCirclePosition) {
+                if (lastCirclePosition && renderer.xr.isPresenting) {
                     model.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
-                    model.scale.set(0.05, 0.05, 0.05);
+                    model.scale.set(0.08, 0.08, 0.08);
 
                 }
                 model_loader["animation_dying"] = model;
@@ -190,12 +190,13 @@ export function brain_loader() {
                     sceneMeshes.push(child);
                 }
             });
-            if (lastCirclePosition) {
+            if (lastCirclePosition && renderer.xr.isPresenting) {
                 gltf.scene.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
                 gltf.scene.scale.set(0.5, 0.5, 0.5);
             }
             model_loader["brain"] = gltf.scene;
-            scene.add(gltf.scene);
+            group.add(gltf.scene);
+
             const sound = new Audio(listener);
             const audioLoader = new AudioLoader();
             animation_camera.push(new move_camera_with_color(new color(0, 0, 0), camera, scene).move_with_position({

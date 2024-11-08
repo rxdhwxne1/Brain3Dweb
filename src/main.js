@@ -3,7 +3,9 @@ import {
     ArrowHelper,
     AudioListener,
     BoxGeometry,
+    BufferGeometry,
     Clock,
+    Group,
     Line,
     Mesh,
     MeshBasicMaterial,
@@ -15,7 +17,7 @@ import {
     SRGBColorSpace,
     Vector2,
     Vector3,
-    WebGLRenderer
+    WebGLRenderer,
 } from 'three';
 
 import {DevUI} from '@iwer/devui';
@@ -82,8 +84,11 @@ export const scene = new Scene();
 const aspect = window.innerWidth / window.innerHeight;
 export const listener = new AudioListener();
 export const camera = new PerspectiveCamera(75, aspect, 0.1, 1000);
+const intersected = [];
 camera.add(listener);
 
+export const group = new Group();
+scene.add(group);
 
 addlight(scene);
 
@@ -109,22 +114,40 @@ let vrControl = VRControl(renderer, camera, scene);
 scene.add(vrControl.controllerGrips[0], vrControl.controllers[0]);
 
 export let lastCirclePosition = new Vector3();
+let begin = false;
 
 function onSelect() {
-    if (reticle.visible) {
+    if (reticle.visible && !begin) {
 
         reticle.matrix.decompose(lastCirclePosition, interface_1.container.quaternion, interface_1.container.scale);
         interface_1.container.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
-        interface_1.container.position.z -= 1;
         for (const [key, value] of Object.entries(model_loader)) {
             if (key === "brain") {
                 value.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
                 value.scale.set(0.5, 0.5, 0.5);
-            } else {
+            } else if (key === "animation_dying") {
                 value.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
                 value.scale.set(0.1, 0.1, 0.1);
+            } else {
+                let cameraDirection = new Vector3();
+                renderer.xr.getCamera().getWorldDirection(cameraDirection);
+                let rightVector = new Vector3();
+                rightVector.crossVectors(cameraDirection, new Vector3(0, 1, 0)).normalize();
+
+                let distanceFromCamera = 0.9;
+                let leftOffset = 0.7;
+                let interfacePosition = {
+                    x: lastCirclePosition.x + cameraDirection.x * distanceFromCamera - rightVector.x * leftOffset,
+                    y: lastCirclePosition.y + cameraDirection.y * distanceFromCamera - rightVector.y * leftOffset,
+                    z: lastCirclePosition.z + cameraDirection.z * distanceFromCamera - rightVector.z * leftOffset
+                };
+
+                value.position.set(interfacePosition.x, interfacePosition.y, interfacePosition.z);
+                value.lookAt(renderer.xr.getCamera().position);
             }
         }
+        begin = true;
+        reticle.visible = false;
 
     }
 
@@ -133,12 +156,13 @@ function onSelect() {
 vrControl.controllers[0].addEventListener('select', onSelect);
 
 vrControl.controllers[0].addEventListener('selectstart', (event) => {
+    onSelectStart(event);
     Click(event);
     selectState = true;
 
 });
-vrControl.controllers[0].addEventListener('selectend', () => {
-
+vrControl.controllers[0].addEventListener('selectend', (event) => {
+    onSelectEnd(event);
     selectState = false;
 
 });
@@ -280,11 +304,106 @@ const interface_1 = new Interface({
 }, scene, JSON.parse(JSON.stringify(trad_intro)), brain_loader);
 
 
-function updateInterfacePosition() {
-    console.log("update interface position");
-    const camera = renderer.xr.getCamera();
-    interface_1.container.position.set(camera.position.x, camera.position.y, camera.position.z - 2);
-    interface_1.container.lookAt(camera.position);
+function onSelectStart(event) {
+
+    const controller = event.target;
+
+    const intersections = getIntersections(controller);
+    console.log(intersections);
+    if (intersections.length > 0) {
+
+        const intersection = intersections[0];
+        let object = intersection.object
+
+        // detecter si l'object c'est le cerveau
+        if (object.name.includes("Brain")) {
+            object = model_loader["brain"];
+        }
+
+        // Vérifie si l'objet a une propriété emissive pour pouvoir le modifier
+        if (object.material && object.material.emissive) {
+            object.material.emissive.b = 1;
+        }
+        controller.attach(object);
+
+        controller.userData.selected = object;
+
+    }
+
+    controller.userData.targetRayMode = event.data.targetRayMode;
+
+}
+
+function onSelectEnd(event) {
+
+    const controller = event.target;
+
+    if (controller.userData.selected !== undefined) {
+
+        const object = controller.userData.selected;
+        if (object.material && object.material.emissive) {
+            object.material.emissive.b = 0;
+        }
+
+        group.attach(object);
+
+        controller.userData.selected = undefined;
+
+    }
+
+}
+
+function getIntersections(controller) {
+
+    controller.updateMatrixWorld();
+
+    raycaster.setFromXRController(controller);
+
+    return raycaster.intersectObjects(group.children, true);
+
+}
+
+function intersectObjects(controller) {
+
+    // Do not highlight in mobile-ar
+
+    if (controller.userData.targetRayMode === 'screen') return;
+
+    // Do not highlight when already selected
+
+    if (controller.userData.selected !== undefined) return;
+
+    const line = controller.getObjectByName('line');
+    const intersections = getIntersections(controller);
+
+    if (intersections.length > 0) {
+
+        const intersection = intersections[0];
+
+        const object = intersection.object;
+        if (object.material.emissive)
+            object.material.emissive.r = 1;
+        intersected.push(object);
+
+        line.scale.z = intersection.distance;
+
+    } else {
+
+        line.scale.z = 5;
+
+    }
+
+}
+
+function cleanIntersected() {
+
+    while (intersected.length) {
+
+        const object = intersected.pop();
+        object.material.emissive.r = 0;
+
+    }
+
 }
 
 
@@ -383,6 +502,9 @@ let hitTestSource = null;
 let hitTestSourceRequested = false;
 
 function animate(timestamp, frame) {
+    if (begin) {
+        return;
+    }
     if (frame) {
         const referenceSpace = renderer.xr.getReferenceSpace();
         const session = renderer.xr.getSession();
@@ -430,6 +552,14 @@ function animate(timestamp, frame) {
     }
 }
 
+const geometry_2 = new BufferGeometry().setFromPoints([new Vector3(0, 0, 0), new Vector3(0, 0, -1)]);
+
+const line_2 = new Line(geometry_2);
+line_2.name = 'line';
+line_2.scale.z = 5;
+
+vrControl.controllers[0].add(line_2.clone());
+
 
 const animation = (timestamp, frame) => {
     try {
@@ -464,6 +594,9 @@ const animation = (timestamp, frame) => {
         mixer_2.update(deltaTime)
     }
     animate(timestamp, frame);
+    cleanIntersected();
+
+    intersectObjects(vrControl.controllers[0]);
     renderer.render(scene, camera);
 };
 
