@@ -23,6 +23,7 @@ import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 const loader = new GLTFLoader();
 export let mixer_1;
 export let mixer_2
+export let model_loader = {};
 
 let loadingIndicator;
 const bounceSpeed = 0.1;
@@ -71,9 +72,10 @@ function load_model_texture() {
                 mixer_2 = new AnimationMixer(model);
                 if (lastCirclePosition) {
                     model.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
-                    model.scale.set(0.5, 0.5, 0.5);
-                }
+                    model.scale.set(0.05, 0.05, 0.05);
 
+                }
+                model_loader["animation_dying"] = model;
 
                 scene.add(model);
                 resolveModel({model, animations});
@@ -192,6 +194,7 @@ export function brain_loader() {
                 gltf.scene.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
                 gltf.scene.scale.set(0.5, 0.5, 0.5);
             }
+            model_loader["brain"] = gltf.scene;
             scene.add(gltf.scene);
             const sound = new Audio(listener);
             const audioLoader = new AudioLoader();

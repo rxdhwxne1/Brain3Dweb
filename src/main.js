@@ -32,7 +32,7 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {button, Interface, sceneMeshes} from "./interface.js";
 import trad_intro from "./data/intro_interface.json" with {type: "json"};
 import {addlight} from "./utils/light.js";
-import {brain_loader, mixer_1, mixer_2, texture} from "./utils/load_model_texture.js";
+import {brain_loader, mixer_1, mixer_2, model_loader, texture} from "./utils/load_model_texture.js";
 import VRControl from "./utils/VRControl.js";
 
 const env = import.meta.env.MODE; // 'development', 'production', 'test'
@@ -91,7 +91,7 @@ addlight(scene);
 const raycaster = new Raycaster();
 const mouse = new Vector2();
 
-const renderer = new WebGLRenderer({antialias: true, alpha: true});
+export const renderer = new WebGLRenderer({antialias: true, alpha: true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 renderer.xr.enabled = true;
@@ -114,8 +114,17 @@ function onSelect() {
     if (reticle.visible) {
 
         reticle.matrix.decompose(lastCirclePosition, interface_1.container.quaternion, interface_1.container.scale);
-        interface_1.container.position.copy(lastCirclePosition);
+        interface_1.container.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
         interface_1.container.position.z -= 1;
+        for (const [key, value] of Object.entries(model_loader)) {
+            if (key === "brain") {
+                value.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
+                value.scale.set(0.5, 0.5, 0.5);
+            } else {
+                value.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
+                value.scale.set(0.1, 0.1, 0.1);
+            }
+        }
 
     }
 
@@ -123,8 +132,8 @@ function onSelect() {
 
 vrControl.controllers[0].addEventListener('select', onSelect);
 
-vrControl.controllers[0].addEventListener('selectstart', () => {
-
+vrControl.controllers[0].addEventListener('selectstart', (event) => {
+    Click(event);
     selectState = true;
 
 });
@@ -219,10 +228,24 @@ let interface_text;
 
 
 function Click(event) {
-    mouse.set((event.clientX / renderer.domElement.clientWidth) * 2 - 1, -(event.clientY / renderer.domElement.clientHeight) * 2 + 1);
-    raycaster.setFromCamera(mouse, camera);
+    let intersects;
 
-    const intersects = raycast(sceneMeshes);
+    if (renderer.xr.isPresenting) {
+        console.log("click vr");
+        vrControl.setFromController(0, raycaster.ray);
+
+        intersects = raycast(sceneMeshes);
+
+        // Position the little white dot at the end of the controller pointing ray
+        if (intersects) vrControl.setPointerAt(0, intersects.point);
+
+    } else if (mouse.x !== null && mouse.y !== null) {
+        console.log("click mouse");
+        mouse.set((event.clientX / renderer.domElement.clientWidth) * 2 - 1, -(event.clientY / renderer.domElement.clientHeight) * 2 + 1);
+        raycaster.setFromCamera(mouse, camera);
+        intersects = raycast(sceneMeshes);
+    }
+
 
     if (intersects) {
         const intersect = intersects;
@@ -388,9 +411,7 @@ function animate(timestamp, frame) {
         }
 
         if (hitTestSource) {
-            console.log("hit test", hitTestSource);
             const hitTestResults = frame.getHitTestResults(hitTestSource);
-            console.log(hitTestResults);
             if (hitTestResults.length) {
 
                 const hit = hitTestResults[0];

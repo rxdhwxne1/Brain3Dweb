@@ -7,7 +7,7 @@ import {Interface} from "../interface.js";
 import brain_info from "../data/brain_lobes_info.json" with {type: "json"};
 import {Audio, AudioLoader, Vector3} from "three";
 import sound_info from "../sounds/info.mp3";
-import {animation_camera, listener} from "../main.js";
+import {animation_camera, listener, renderer} from "../main.js";
 
 let infoPanel = null;
 
@@ -68,7 +68,13 @@ class move_camera_with_color {
             .onComplete(() => {
                 console.log("camera moved", this.camera.position);
                 let cameraDirection = new Vector3();
-                this.camera.getWorldDirection(cameraDirection);
+                if (renderer.xr.isPresenting) {
+                    renderer.xr.getCamera().getWorldDirection(cameraDirection);
+                    console.log("camera direction", cameraDirection);
+                } else {
+                    this.camera.getWorldDirection(cameraDirection);
+                }
+
 
                 let rightVector = new Vector3();
                 rightVector.crossVectors(cameraDirection, new Vector3(0, 1, 0)).normalize();
