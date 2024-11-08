@@ -27,7 +27,7 @@ import {metaQuest3, XRDevice} from 'iwer';
 // XR
 import {XRButton} from 'three/addons/webxr/XRButton.js';
 
-import {getColor} from "./utils/color.js";
+import {color, getColor} from "./utils/color.js";
 import {move_camera_with_color} from "./utils/move_camera.js";
 import ThreeMeshUI from 'three-mesh-ui';
 
@@ -120,6 +120,11 @@ renderer.xr.addEventListener('sessionend', () => {
     });
     begin = false;
     model_loader["brain"].position.set(0, 0, 0);
+    animation_camera.push(new move_camera_with_color(new color(0, 0, 0), camera, scene).move_with_position({
+        x: 0,
+        y: 0,
+        z: 3
+    }, 0));
 });
 
 
