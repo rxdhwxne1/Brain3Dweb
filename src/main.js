@@ -11,6 +11,7 @@ import {
     MeshBasicMaterial,
     MeshNormalMaterial,
     PerspectiveCamera,
+    Quaternion,
     Raycaster,
     RingGeometry,
     Scene,
@@ -18,7 +19,7 @@ import {
     TextureLoader,
     Vector2,
     Vector3,
-    WebGLRenderer,
+    WebGLRenderer
 } from 'three';
 
 import {DevUI} from '@iwer/devui';
@@ -157,8 +158,14 @@ let begin = false;
 function onSelect() {
     if (reticle.visible && !begin) {
 
-        reticle.matrix.decompose(lastCirclePosition, interface_intro.container.quaternion, interface_intro.container.scale);
-        interface_intro.container.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
+        if (!click_begin) {
+
+            reticle.matrix.decompose(lastCirclePosition, interface_intro.container.quaternion, interface_intro.container.scale);
+            interface_intro.container.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
+        } else {
+            reticle.matrix.decompose(lastCirclePosition, new Quaternion(), new Vector3());
+        }
+
         for (const [key, value] of Object.entries(model_loader)) {
             if (key === "brain") {
                 value.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
