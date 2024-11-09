@@ -126,8 +126,16 @@ renderer.xr.addEventListener('sessionend', () => {
             y: 0,
             z: 3
         }, 0));
+        model_loader["brain"].scale.set(1, 1, 1);
     } else {
-        camera.position.set(0, 0, 3);
+        scene.remove(interface_intro.container);
+        interface_intro = new Interface({
+            x: camera.position.x,
+            y: camera.position.y,
+            z: camera.position.z + 1.6
+        }, scene, JSON.parse(JSON.stringify(trad_intro)), brain_loader);
+
+
     }
 });
 
