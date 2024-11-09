@@ -12,7 +12,7 @@ import {
 } from "three";
 import FontJSON from "./assets/NotoSans-Italic-VariableFont_wdth,wght-msdf.json" with {type: "json"};
 import FontImage from "./assets/NotoSans-Italic-VariableFontwdthwght.png";
-import {interface_intro} from "./main.js";
+import {group, interface_intro} from "./main.js";
 
 
 export let button = []
@@ -67,6 +67,7 @@ export class Interface {
         sceneMeshes.push(plane);
         plane_save = plane;
         this.scene.add(this.container);
+        group.add(this.container);
 
         const title = new ThreeMeshUI.Block({
             height: 0.2,
@@ -149,6 +150,9 @@ export class Interface {
                         plane_save = null;
                     }
                     click_begin = true;
+
+                    interface_intro.container.visible = false;
+                    interface_intro.container = null;
                     this.scene.remove(interface_intro.container);
                     this.brain_loader();
                     button = [];

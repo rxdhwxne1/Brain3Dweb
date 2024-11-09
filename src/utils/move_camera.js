@@ -110,7 +110,6 @@ class move_camera_with_color {
                 } else {
                     infoPanel.container.lookAt(this.camera.position);
                 }
-                group.add(infoPanel.container);
                 animation_camera.push(this.move_with_rotation(infoPanel.container.rotation));
                 model_loader["infoPanel"] = infoPanel.container;
                 this.camera.getWorldDirection(cameraDirection);
