@@ -5,19 +5,16 @@ import {
     BoxGeometry,
     BufferGeometry,
     Clock,
-    CustomBlending,
     Group,
     Line,
     Mesh,
     MeshBasicMaterial,
     MeshNormalMaterial,
     PerspectiveCamera,
-    PlaneGeometry,
     Quaternion,
     Raycaster,
     RingGeometry,
     Scene,
-    ShadowMaterial,
     SRGBColorSpace,
     TextureLoader,
     Vector2,
@@ -103,13 +100,6 @@ export let group = new Group();
 scene.add(group);
 
 addlight(scene);
-
-const floorGeometry = new PlaneGeometry(6, 6);
-const floorMaterial = new ShadowMaterial({opacity: 0.25, blending: CustomBlending, transparent: false});
-const floor = new Mesh(floorGeometry, floorMaterial);
-floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = true;
-scene.add(floor);
 
 
 
