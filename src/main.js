@@ -162,9 +162,11 @@ function onSelect() {
         if (!click_begin) {
 
             reticle.matrix.decompose(lastCirclePosition, interface_intro.container.quaternion, interface_intro.container.scale);
+            lastCirclePosition.z += 0.5;
             interface_intro.container.position.set(lastCirclePosition.x, lastCirclePosition.y, lastCirclePosition.z);
         } else {
             reticle.matrix.decompose(lastCirclePosition, new Quaternion(), new Vector3());
+            lastCirclePosition.z += 0.5;
         }
 
         for (const [key, value] of Object.entries(model_loader)) {
