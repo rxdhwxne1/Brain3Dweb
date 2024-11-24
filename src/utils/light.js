@@ -4,23 +4,28 @@ export function addlight(scene) {
     const rectLight1 = new RectAreaLight(0xffffff, 5, 5, 5);
     rectLight1.position.set(0, 5, 0); // Au-dessus de l'objet
     rectLight1.lookAt(0, 0, 0);
+    rectLight1.name = "rectLight1";
     scene.add(rectLight1);
 
     const rectLight2 = new RectAreaLight(0xffffff, 5, 5, 5);
     rectLight2.position.set(0, -5, 0); // En dessous de l'objet
     rectLight2.lookAt(0, 0, 0);
+    rectLight2.name = "rectLight2";
     scene.add(rectLight2);
 
     const rectLight3 = new RectAreaLight(0xffffff, 5, 5, 5);
     rectLight3.position.set(5, 0, 0); // À droite de l'objet
     rectLight3.lookAt(0, 0, 0);
+    rectLight3.name = "rectLight3";
     scene.add(rectLight3);
 
     const rectLight4 = new RectAreaLight(0xffffff, 5, 5, 5);
     rectLight4.position.set(-5, 0, 0); // À gauche de l'objet
     rectLight4.lookAt(0, 0, 0);
+    rectLight4.name = "rectLight4";
     scene.add(rectLight4);
 
     const rectLight5 = new HemisphereLight(0xffffbb, 0x080820, 3);
+    rectLight5.name = "rectLight5";
     scene.add(rectLight5);
 }
