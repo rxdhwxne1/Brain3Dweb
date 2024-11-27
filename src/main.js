@@ -355,9 +355,6 @@ init().then((xrSession) => {
                 let move;
                 try {
                     move = interface_text.move_to();
-                    if (renderer.xr.isPresenting) {
-                        navigator.vibrate(100);
-                    }
                 } catch (e) {
                     console.error("Error in animation");
                     return;
