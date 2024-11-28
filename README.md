@@ -15,7 +15,7 @@ partie, une fenêtre s'ouvre avec des informations sur cette partie.
 défaut.
 - Il peut cliquer sur le bouton en haut à droite pour lancer un tts qui lui donnera des informations sur la partie du
 cerveau sur laquelle il a cliqué selon la langue choisie.
-- Pour activer le mode XR (réalité étendue), l'utilisateur doit cliquer sur le bouton situé en bas de la page. Une fois activé, un petit cercle apparaîtra, permettant de positionner et d'interagir avec les éléments XR.
+- Pour activer le mode XR , l'utilisateur doit cliquer sur le bouton situé en bas de la page. Une fois activé, un petit cercle apparaîtra, permettant de positionner et d'interagir avec les éléments XR.
 
 ## Illustration
 
