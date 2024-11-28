@@ -15,6 +15,7 @@ partie, une fenêtre s'ouvre avec des informations sur cette partie.
 défaut.
 - Il peut cliquer sur le bouton en haut à droite pour lancer un tts qui lui donnera des informations sur la partie du
 cerveau sur laquelle il a cliqué selon la langue choisie.
+- Pour activer le mode XR (réalité étendue), l'utilisateur doit cliquer sur le bouton situé en bas de la page. Une fois activé, un petit cercle apparaîtra, permettant de positionner et d'interagir avec les éléments XR.
 
 ## Illustration
 
@@ -39,6 +40,7 @@ https://github.com/user-attachments/assets/a485a0bd-b3af-49da-89c3-2dfe8f896d87
   - Création de la structure des interfaces
   - Animation du mouvement de caméra
   - Ajout d'un personnage animé
+  - Tranformation de l'app en XR
 
 - **Radhwane Namaoui**:
   - Création de la scène 3D
