@@ -19,7 +19,7 @@ import {
     TextureLoader,
     Vector2,
     Vector3,
-    WebGLRenderer
+    WebGLRenderer,
 } from 'three';
 
 import {DevUI} from '@iwer/devui';
@@ -27,7 +27,7 @@ import {metaQuest3, XRDevice} from 'iwer';
 
 // XR
 import {XRButton} from 'three/addons/webxr/XRButton.js';
-
+import {XREstimatedLight} from 'three/addons/webxr/XREstimatedLight.js';
 import {color, getColor} from "./utils/color.js";
 import {move_camera_with_color} from "./utils/move_camera.js";
 import ThreeMeshUI from 'three-mesh-ui';
@@ -118,23 +118,24 @@ init().then((xrSession) => {
 
     renderer.xr.addEventListener('sessionstart', () => {
         scene.background = null; // Supprime l'arrière-plan
-        const xrSession = renderer.xr.getSession();
-        xrSession.requestLightProbe().then((lightProbe) => {
-            const lightEstimation = lightProbe.probe;
 
-            renderer.xr.getCamera(camera);
-            console.log('Light probe changed');
-            const {intensity, color} = lightEstimation;
-            console.log(`Light estimation changed: intensity ${intensity}, color ${color.r}, ${color.g}, ${color.b}`);
-            // Update scene light based on estimation
-            for (let i = 0; i < 6; i++) {
-                const rectAreaLight = scene.getObjectByName(`rectLight${i + 1}`);
-                if (rectAreaLight) {
-                    rectAreaLight.intensity = intensity / 6; // Real-world light intensity
-                    rectAreaLight.color.setRGB(color.r, color.g, color.b);
-                }
-            }
-        }).catch(console.error);
+        /* const xrSession = renderer.xr.getSession();
+         xrSession.requestLightProbe().then((lightProbe) => {
+             const lightEstimation = lightProbe.probe;
+
+             renderer.xr.getCamera(camera);
+             console.log('Light probe changed');
+             const {intensity, color} = lightEstimation;
+             console.log(`Light estimation changed: intensity ${intensity}, color ${color.r}, ${color.g}, ${color.b}`);
+             // Update scene light based on estimation
+             for (let i = 0; i < 6; i++) {
+                 const rectAreaLight = scene.getObjectByName(`rectLight${i + 1}`);
+                 if (rectAreaLight) {
+                     rectAreaLight.intensity = intensity / 6; // Real-world light intensity
+                     rectAreaLight.color.setRGB(color.r, color.g, color.b);
+                 }
+             }
+         }).catch(console.error);*/
     });
 
 
@@ -162,6 +163,38 @@ init().then((xrSession) => {
 
 
         }
+    });
+
+
+    const xrLight = new XREstimatedLight(renderer);
+
+    xrLight.addEventListener('estimationstart', () => {
+
+        // Swap the default light out for the estimated one one we start getting some estimated values.
+        scene.add(xrLight);
+        for (let i = 0; i < 6; i++) {
+            const rectAreaLight = scene.getObjectByName(`rectLight${i + 1}`);
+            scene.remove(rectAreaLight);
+        }
+        // The estimated lighting also provides an environment cubemap, which we can apply here.
+        if (xrLight.environment) {
+
+            scene.environment = xrLight.environment;
+
+        }
+
+    });
+
+    xrLight.addEventListener('estimationend', () => {
+
+        // Swap the lights back when we stop receiving estimated values.
+        addlight(scene);
+
+        scene.remove(xrLight);
+
+        // Revert back to the default environment.
+        scene.environment = defaultEnvironment;
+
     });
 
 
