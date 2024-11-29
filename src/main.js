@@ -122,6 +122,10 @@ init().then((xrSession) => {
 
 
     renderer.xr.addEventListener('sessionend', () => {
+        sessionend();
+    });
+
+    function sessionend() {
         const loader2 = new TextureLoader();
         loader2.load('assets/ml-reseau-neurones.png', (texture) => {
             scene.background = texture;
@@ -145,7 +149,7 @@ init().then((xrSession) => {
 
 
         }
-    });
+    }
 
 
     const xrLight = new XREstimatedLight(renderer);
@@ -190,6 +194,9 @@ init().then((xrSession) => {
 
     lastCirclePosition = new Vector3();
     let begin = false;
+
+
+    vrControl.controllers[0].addEventListener('select', onSelect);
 
     function onSelect() {
         if (reticle.visible && !begin) {
@@ -236,8 +243,6 @@ init().then((xrSession) => {
 
     }
 
-    vrControl.controllers[0].addEventListener('select', onSelect);
-
     vrControl.controllers[0].addEventListener('selectstart', (event) => {
         onSelectStart(event);
         Click(event);
@@ -277,6 +282,21 @@ init().then((xrSession) => {
     renderer.domElement.addEventListener('mousemove', onMouseMove, false)
 
     renderer.domElement.addEventListener('mousedown', () => {
+        mousedown();
+
+    });
+
+    renderer.domElement.addEventListener('mouseup', () => {
+        controls.enabled = true;
+        selectState = false;
+    });
+
+
+    const arrowHelper = new ArrowHelper(new Vector3(), new Vector3(), .25, 0xffff00)
+    scene.add(arrowHelper)
+    const line = new Line(geometry, material)
+
+    function mousedown() {
         let intersect;
 
         if (mouse.x !== null && mouse.y !== null) {
@@ -294,18 +314,7 @@ init().then((xrSession) => {
 
             controls.enabled = true;
         }
-
-    });
-
-    renderer.domElement.addEventListener('mouseup', () => {
-        controls.enabled = true;
-        selectState = false;
-    });
-
-
-    const arrowHelper = new ArrowHelper(new Vector3(), new Vector3(), .25, 0xffff00)
-    scene.add(arrowHelper)
-    const line = new Line(geometry, material)
+    }
 
     function onMouseMove(event) {
         mouse.set((event.clientX / renderer.domElement.clientWidth) * 2 - 1, -(event.clientY / renderer.domElement.clientHeight) * 2 + 1)
