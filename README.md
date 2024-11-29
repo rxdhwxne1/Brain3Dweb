@@ -41,6 +41,9 @@ https://github.com/user-attachments/assets/a485a0bd-b3af-49da-89c3-2dfe8f896d87
   - Animation du mouvement de caméra
   - Ajout d'un personnage animé
   - Tranformation de l'app en XR
+  - Ajout de vibrations
+  - Ajout d'un éclairage qui s'adapte à l'intensité et la direction de la lumière réelle
+  - Ajout du hit-test avec le réel
 
 - **Radhwane Namaoui**:
   - Création de la scène 3D
