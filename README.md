@@ -21,6 +21,8 @@ cerveau sur laquelle il a cliqué selon la langue choisie.
 
 https://github.com/user-attachments/assets/a485a0bd-b3af-49da-89c3-2dfe8f896d87
 
+https://github.com/user-attachments/assets/90b6eb83-42be-4b30-bd55-08475bc824a7
+
 ## Lien pour tester l'application en live
 
 [Tester l'application en live](https://rxdhwxne1.github.io/Brain3Dweb/)
