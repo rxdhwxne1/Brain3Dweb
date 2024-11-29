@@ -174,9 +174,6 @@ init().then((xrSession) => {
 
         scene.remove(xrLight);
 
-        // Revert back to the default environment.
-        scene.environment = defaultEnvironment;
-
     });
 
 
