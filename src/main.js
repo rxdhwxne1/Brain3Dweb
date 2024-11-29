@@ -118,24 +118,6 @@ init().then((xrSession) => {
 
     renderer.xr.addEventListener('sessionstart', () => {
         scene.background = null; // Supprime l'arrière-plan
-
-        /* const xrSession = renderer.xr.getSession();
-         xrSession.requestLightProbe().then((lightProbe) => {
-             const lightEstimation = lightProbe.probe;
-
-             renderer.xr.getCamera(camera);
-             console.log('Light probe changed');
-             const {intensity, color} = lightEstimation;
-             console.log(`Light estimation changed: intensity ${intensity}, color ${color.r}, ${color.g}, ${color.b}`);
-             // Update scene light based on estimation
-             for (let i = 0; i < 6; i++) {
-                 const rectAreaLight = scene.getObjectByName(`rectLight${i + 1}`);
-                 if (rectAreaLight) {
-                     rectAreaLight.intensity = intensity / 6; // Real-world light intensity
-                     rectAreaLight.color.setRGB(color.r, color.g, color.b);
-                 }
-             }
-         }).catch(console.error);*/
     });
 
 
